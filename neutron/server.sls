@@ -112,11 +112,8 @@ rule_{{ name }}_absent:
   - template: jinja
   - require:
     - pkg: neutron_server_packages
-{%- if not grains.get('noservices', False) %}
   - watch_in:
     - service: neutron_server_services
-
-{%- endif %}
 
 {%- endif %}
 
@@ -180,6 +177,9 @@ neutron_server_services:
   service.running:
   - names: {{ server.services }}
   - enable: true
+  {% if grains.noservices is defined %}
+  - onlyif: {% if grains.get('noservices', "True") %}"True"{% else %}False{% endif %}
+  {% endif %}
   - watch:
     - file: /etc/neutron/neutron.conf
 
