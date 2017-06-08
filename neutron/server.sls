@@ -129,14 +129,15 @@ rule_{{ name }}_absent:
     - dir_mode: 755
     - template: jinja
 
-{%- if not grains.get('noservices', False) %}
 neutron_db_manage:
   cmd.run:
   - name: neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugins/midonet/midonet.ini upgrade head
+  {% if grains.noservices is defined %}
+  - onlyif: {% if grains.get('noservices', "True") %}"True"{% else %}False{% endif %}
+  {% endif %}
   - require:
     - file: /etc/neutron/neutron.conf
     - file: /etc/neutron/plugins/midonet/midonet.ini
-{%- endif %}
 
 {%- if server.version == "kilo" %}
 
@@ -171,8 +172,6 @@ neutron_db_manage:
 {%- endif %}
 {%- endif %}
 
-{%- if not grains.get('noservices', False) %}
-
 neutron_server_services:
   service.running:
   - names: {{ server.services }}
@@ -182,8 +181,6 @@ neutron_server_services:
   {% endif %}
   - watch:
     - file: /etc/neutron/neutron.conf
-
-{%- endif %}
 
 {%- if grains.get('virtual_subtype', None) == "Docker" %}
 
