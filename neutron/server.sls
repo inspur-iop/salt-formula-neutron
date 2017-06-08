@@ -27,14 +27,15 @@ neutron_contrail_package:
   pkg.installed:
   - name: neutron-plugin-contrail
 
-{%- if not grains.get('noservices', False) %}
 neutron_server_service:
   service.running:
   - name: neutron-server
   - enable: true
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
   - watch:
     - file: /etc/neutron/neutron.conf
-{%- endif %}
 
 {%- endif %}
 
@@ -55,14 +56,15 @@ ml2_plugin_link:
   - require:
     - file: /etc/neutron/plugins/ml2/ml2_conf.ini
 
-{%- if not grains.get('noservices', False) %}
 neutron_db_manage:
   cmd.run:
   - name: neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
   - require:
     - file: /etc/neutron/neutron.conf
     - file: /etc/neutron/plugins/ml2/ml2_conf.ini
-{%- endif %}
 
 {%- endif %}
 
@@ -132,9 +134,9 @@ rule_{{ name }}_absent:
 neutron_db_manage:
   cmd.run:
   - name: neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugins/midonet/midonet.ini upgrade head
-  {% if grains.noservices is defined %}
-  - onlyif: {% if grains.get('noservices', "True") %}"True"{% else %}False{% endif %}
-  {% endif %}
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
   - require:
     - file: /etc/neutron/neutron.conf
     - file: /etc/neutron/plugins/midonet/midonet.ini
@@ -160,14 +162,15 @@ midonet_neutron_packages:
     - python-neutron-lbaas
     - python-neutron-fwaas
 
-{%- if not grains.get('noservices', False) %}
 neutron_db_manage:
   cmd.run:
   - name: neutron-db-manage --subproject networking-midonet upgrade head
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
   - require:
     - file: /etc/neutron/neutron.conf
     - file: /etc/neutron/plugins/midonet/midonet.ini
-{%- endif %}
 
 {%- endif %}
 {%- endif %}
@@ -176,9 +179,9 @@ neutron_server_services:
   service.running:
   - names: {{ server.services }}
   - enable: true
-  {% if grains.noservices is defined %}
-  - onlyif: {% if grains.get('noservices', "True") %}"True"{% else %}False{% endif %}
-  {% endif %}
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
   - watch:
     - file: /etc/neutron/neutron.conf
 

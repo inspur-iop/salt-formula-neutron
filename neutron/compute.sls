@@ -32,13 +32,15 @@ neutron_sriov_service:
   service.running:
   - name: neutron-sriov-agent
   - enable: true
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
   - watch_in:
     - service: neutron_compute_services
   - watch:
     - file: /etc/neutron/neutron.conf
     - file: /etc/neutron/plugins/ml2/openvswitch_agent.ini
     - file: /etc/neutron/plugins/ml2/sriov_agent.ini
-  - unless: grains.get('noservices', False)
 
 {% endif %}
 
