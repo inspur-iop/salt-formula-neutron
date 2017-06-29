@@ -37,6 +37,7 @@ neutron_gateway_packages:
 /etc/neutron/dhcp_agent.ini:
   file.managed:
   - source: salt://neutron/files/{{ gateway.version }}/dhcp_agent.ini
+  - template: jinja
   - require:
     - pkg: neutron_gateway_packages
 
@@ -130,6 +131,11 @@ rabbitmq_ca_neutron_gateway:
   file.exists:
    - name: {{ gateway.message_queue.ssl.get('cacert_file', gateway.cacert_file) }}
 {%- endif %}
+{%- endif %}
+
+{%- if gateway.opendaylight is defined %}
+include:
+  - .opendaylight.client
 {%- endif %}
 
 {%- endif %}

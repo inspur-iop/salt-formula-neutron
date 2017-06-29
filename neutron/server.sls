@@ -116,6 +116,13 @@ include:
   - .services.l2gw
 {%- endif %}
 
+{%- if server.backend.get('opendaylight', False) %}
+python-networking-odl:
+  pkg.installed:
+  - require_in:
+    - pkg: neutron_server_packages
+{%- endif %}
+
 /etc/neutron/neutron.conf:
   file.managed:
   - source: salt://neutron/files/{{ server.version }}/neutron-server.conf.{{ grains.os_family }}

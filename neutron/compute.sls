@@ -238,6 +238,11 @@ rabbitmq_ca_neutron_compute:
 {%- endif %}
 {%- endif %}
 
+{%- if compute.opendaylight is defined %}
+include:
+  - .opendaylight.client
+{%- endif %}
+
 {%- elif compute.backend.engine == "ovn" %}
 
 ovn_packages:

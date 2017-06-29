@@ -45,12 +45,20 @@
     },
 }, merge=pillar.neutron.get('compute', {}), base='BaseDefaults') %}
 
+{%- set opendaylight_enabled = pillar.neutron.gateway is defined and pillar.neutron.gateway.opendaylight is defined %}
+{%- set pkgs_list = ['neutron-dhcp-agent', 'openvswitch-common', 'neutron-metadata-agent'] %}
+{%- set services_list = ['neutron-metadata-agent', 'neutron-dhcp-agent'] %}
+{%- if not opendaylight_enabled %}
+{%- do pkgs_list.extend(['neutron-openvswitch-agent', 'neutron-l3-agent']) %}
+{%- do services_list.extend(['neutron-openvswitch-agent', 'neutron-l3-agent']) %}
+{%- endif %}
+
 {% set gateway = salt['grains.filter_by']({
     'BaseDefaults': default_params,
     'Debian': {
-        'pkgs': ['neutron-dhcp-agent', 'neutron-openvswitch-agent', 'neutron-l3-agent', 'openvswitch-common', 'neutron-metadata-agent'],
+        'pkgs': pkgs_list,
         'pkgs_l2gw_agent': ['neutron-l2gateway-agent'],
-        'services': ['neutron-openvswitch-agent', 'neutron-metadata-agent', 'neutron-l3-agent', 'neutron-dhcp-agent'],
+        'services': services_list,
         'dpdk': false,
         'logging': {
           'log_appender': false,
@@ -64,7 +72,7 @@
     'RedHat': {
         'pkgs': ['openstack-neutron-openvswitch'],
         'pkgs_l2gw_agent': ['openstack-neutron-l2gw-agent'],
-        'services': ['neutron-openvswitch-agent', 'neutron-metadata-agent', 'neutron-l3-agent', 'neutron-dhcp-agent'],
+        'services': services_list,
         'dpdk': false,
         'logging': {
           'log_appender': false,

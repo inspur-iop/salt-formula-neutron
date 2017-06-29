@@ -128,6 +128,11 @@ suites:
       pillars-from-files:
         neutron.sls: tests/pillar/control_l2gw.sls
 
+  - name: control_opendaylight
+    provisioner:
+      pillars-from-files:
+        neutron.sls: tests/pillar/control_opendaylight.sls
+
   - name: control_single
     provisioner:
       pillars-from-files:
@@ -167,6 +172,11 @@ suites:
     provisioner:
       pillars-from-files:
         neutron.sls: tests/pillar/gateway_legacy_l2gw.sls
+
+  - name: gateway_legacy_opendaylight
+    provisioner:
+      pillars-from-files:
+        neutron.sls: tests/pillar/gateway_legacy_opendaylight.sls
 
   - name: control_dns
     provisioner:
