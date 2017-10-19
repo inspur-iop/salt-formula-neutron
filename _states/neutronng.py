@@ -43,7 +43,7 @@ def _neutron_module_call(method, *args, **kwargs):
 
 def _get_tenant_id(tenant_name, *args, **kwargs):
     try:
-        tenant_id = __salt__['keystone.tenant_get'](
+        tenant_id = __salt__['keystoneng.tenant_get'](
             name=tenant_name, **kwargs)[tenant_name]['id']
     except:
         tenant_id = None
@@ -286,7 +286,7 @@ def router_present(name=None,
     connection_args = _auth(profile, endpoint_type)
     tenant_name = tenant
     try:
-        tenant_id = __salt__['keystone.tenant_get'](
+        tenant_id = __salt__['keystoneng.tenant_get'](
             name=tenant_name, **connection_args)[tenant_name]['id']
     except:
         tenant_id = None
@@ -378,7 +378,7 @@ def floatingip_present(name=None,
     existing_floatingips = _neutron_module_call(
         'list_floatingips', **connection_args)
 
-    tenant = __salt__['keystone.tenant_get'](name=tenant_name, **connection_args)
+    tenant = __salt__['keystoneng.tenant_get'](name=tenant_name, **connection_args)
     tenant_id = tenant[tenant_name]['id']
     existing_network = _neutron_module_call(
             'list_networks', name=network, **connection_args)["networks"]
@@ -431,7 +431,7 @@ def security_group_present(name=None,
     connection_args = _auth(profile, endpoint_type)
     tenant_name = tenant
     try:
-        tenant_id = __salt__['keystone.tenant_get'](
+        tenant_id = __salt__['keystoneng.tenant_get'](
             name=tenant_name, **connection_args)[tenant_name]['id']
     except:
         tenant_id = None
