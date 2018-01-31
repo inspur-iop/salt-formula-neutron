@@ -1086,6 +1086,16 @@ Neutron with Designate
               port: 9001
               protocol: http
 
+Enable RBAC for OpenContrail engine
+-----------------------------------
+.. code-block:: yaml
+
+    neutron:
+      server:
+        backend:
+          engine: contrail
+          rbac:
+            enabled: True
 
 Enhanced logging with logging.conf
 ----------------------------------
