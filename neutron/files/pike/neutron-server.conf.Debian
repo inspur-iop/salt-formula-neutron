@@ -55,6 +55,7 @@ service_plugins ={{ l3_plugin }}, neutron.services.metering.metering_plugin.Mete
 {%- if fwaas.get('enabled', False) -%},{{ fwaas[fwaas.api_version]['service_plugin'] }}{%- endif -%}
 {%- if server.get('qos', 'True') -%},neutron.services.qos.qos_plugin.QoSPlugin{%- endif -%}
 {%- if server.get('vlan_aware_vms', False) -%},trunk{%- endif -%}
+{%- if server.l2gw is defined and server.l2gw.get('enabled', False) -%},networking_l2gw.services.l2gateway.plugin.L2GatewayPlugin{%- endif -%}
 
 {% endif %}
 

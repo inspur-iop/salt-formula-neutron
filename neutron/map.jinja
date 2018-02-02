@@ -49,6 +49,7 @@
     'BaseDefaults': default_params,
     'Debian': {
         'pkgs': ['neutron-dhcp-agent', 'neutron-openvswitch-agent', 'neutron-l3-agent', 'openvswitch-common', 'neutron-metadata-agent'],
+        'pkgs_l2gw_agent': ['neutron-l2gateway-agent'],
         'services': ['neutron-openvswitch-agent', 'neutron-metadata-agent', 'neutron-l3-agent', 'neutron-dhcp-agent'],
         'dpdk': false,
         'logging': {
@@ -62,6 +63,7 @@
     },
     'RedHat': {
         'pkgs': ['openstack-neutron-openvswitch'],
+        'pkgs_l2gw_agent': ['openstack-neutron-l2gw-agent'],
         'services': ['neutron-openvswitch-agent', 'neutron-metadata-agent', 'neutron-l3-agent', 'neutron-dhcp-agent'],
         'dpdk': false,
         'logging': {
@@ -81,6 +83,7 @@
         'pkgs': ['neutron-server','python-neutron-lbaas', 'gettext-base', 'python-pycadf'],
         'pkgs_ovn': ['python-networking-ovn', 'ovn-common', 'ovn-central'],
         'pkgs_ml2': ['neutron-plugin-ml2'],
+        'pkgs_l2gw': ['python-networking-l2gw'],
         'services': ['neutron-server'],
         'services_ovn': ['ovn-central'],
         'notification': False,
@@ -102,6 +105,7 @@
         'pkgs_ml2': ['openstack-neutron-ml2', 'python-pycadf'],
         'pkgs': ['openstack-neutron'],
         'pkgs_ovn': ['openvswitch-ovn', 'python-networking-ovn'],
+        'pkgs_l2gw': ['python2-networking-l2gw'],
         'services': ['neutron-server'],
         'services_ovn': ['ovn-central'],
         'notification': False,

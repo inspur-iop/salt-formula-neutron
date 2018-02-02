@@ -111,6 +111,11 @@ neutron_db_manage:
 
 {%- endif %}
 
+{%- if server.l2gw is defined %}
+include:
+  - .services.l2gw
+{%- endif %}
+
 /etc/neutron/neutron.conf:
   file.managed:
   - source: salt://neutron/files/{{ server.version }}/neutron-server.conf.{{ grains.os_family }}

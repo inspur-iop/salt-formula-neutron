@@ -123,6 +123,11 @@ suites:
       pillars-from-files:
         neutron.sls: tests/pillar/control_fwaas_v1.sls
 
+  - name: control_l2gw
+    provisioner:
+      pillars-from-files:
+        neutron.sls: tests/pillar/control_l2gw.sls
+
   - name: control_single
     provisioner:
       pillars-from-files:
@@ -157,6 +162,11 @@ suites:
     provisioner:
       pillars-from-files:
         neutron.sls: tests/pillar/gateway_legacy_fwaas_v1.sls
+
+  - name: gateway_legacy_l2gw
+    provisioner:
+      pillars-from-files:
+        neutron.sls: tests/pillar/gateway_legacy_l2gw.sls
 
   - name: control_dns
     provisioner:

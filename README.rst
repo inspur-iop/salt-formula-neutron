@@ -778,6 +778,45 @@ Compute node:
         backend:
           engine: ovn
 
+
+Neutron L2 Gateway
+----------------
+
+Control node:
+
+.. code-block:: yaml
+
+    neutron:
+      server:
+        version: pike
+        l2gw:
+          enabled: true
+          periodic_monitoring_interval: 5
+          quota_l2_gateway: 20
+          # service_provider=<service_type>:<name>:<driver>[:default]
+          service_provider: L2GW:OpenDaylight:networking_odl.l2gateway.driver.OpenDaylightL2gwDriver:default
+        backend:
+          engine: ml2
+
+Network/Gateway node:
+
+.. code-block:: yaml
+
+    neutron:
+      gateway:
+        version: pike
+        l2gw:
+          enabled: true
+          debug: true
+          socket_timeout: 20
+          ovsdb_hosts:
+            # <ovsdb_name>: <ip address>:<port>
+            # - ovsdb_name: a user defined symbolic identifier of physical switch
+            # - ip address: the address or dns name for the OVSDB server (i.e. pointer to the switch)
+            ovsdb1: 10.164.5.33:6632
+            ovsdb2: 10.164.4.33:6632
+
+
 Neutron Server
 --------------
 

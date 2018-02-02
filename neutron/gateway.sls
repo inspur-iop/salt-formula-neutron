@@ -5,6 +5,11 @@ include:
 - neutron.fwaas
 {%- endif %}
 
+{%- if gateway.l2gw is defined %}
+include:
+  - .agents.l2gw
+{%- endif %}
+
 {%- if gateway.enabled %}
 neutron_gateway_packages:
   pkg.installed:
