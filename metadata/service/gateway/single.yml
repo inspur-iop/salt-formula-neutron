@@ -6,6 +6,7 @@ parameters:
   _param:
     openstack_log_appender: false
     openstack_fluentd_handler_enabled: false
+    openstack_ossyslog_handler_enabled: false
   neutron:
     gateway:
       enabled: true
@@ -39,3 +40,5 @@ parameters:
             enabled: true
           fluentd:
             enabled: ${_param:openstack_fluentd_handler_enabled}
+          ossyslog:
+            enabled: ${_param:openstack_ossyslog_handler_enabled}
