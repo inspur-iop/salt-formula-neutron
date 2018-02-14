@@ -13,6 +13,9 @@ parameters:
       enabled: true
       dns_domain: novalocal
       vlan_aware_vms: false
+      bgp_vpn:
+        enabled: false
+        driver: bagpipe
       version: ${_param:neutron_version}
       controller_vip: ${_param:cluster_vip_address}
       bind:

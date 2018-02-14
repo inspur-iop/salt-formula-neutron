@@ -26,6 +26,9 @@ parameters:
       security_groups_enabled: true
       qos: false
       vlan_aware_vms: false
+      bgp_vpn:
+        enabled: false
+        driver: bagpipe
       metadata:
         host: ${_param:cluster_vip_address}
         password: ${_param:metadata_password}
