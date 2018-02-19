@@ -81,6 +81,7 @@ neutron_server_service:
   file.managed:
   - source: salt://neutron/files/{{ server.version }}/ml2_conf.ini
   - template: jinja
+  - makedirs: True
   - require:
     - pkg: neutron_server_packages
   - watch_in:
