@@ -16,5 +16,5 @@ NEUTRON_PLUGIN_CONFIG="/etc/neutron/plugins/opencontrail/ContrailPlugin.ini"
 {%- endif %}
 
 {%- if server.logging.log_appender %}
-DAEMON_ARGS="--log-config-append=/etc/neutron/logging/logging-neutron-server.conf"
+DAEMON_ARGS="${DAEMON_ARGS} --log-config-append=/etc/neutron/logging/logging-neutron-server.conf"
 {%- endif %}
