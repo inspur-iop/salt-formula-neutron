@@ -7,12 +7,17 @@ use = egg:Paste#urlmap
 [composite:neutronapi_v2_0]
 use = call:neutron.auth:pipeline_factory
 noauth = cors http_proxy_to_wsgi request_id catch_errors extensions neutronapiapp_v2_0
-keystone = cors http_proxy_to_wsgi request_id catch_errors authtoken keystonecontext extensions {% if server.audit.enabled %}audit {% endif %}neutronapiapp_v2_0
+keystone = cors http_proxy_to_wsgi {%- if server.backend.engine == "contrail" and server.backend.rbac %} user_token {%- endif %} request_id catch_errors authtoken keystonecontext extensions {% if server.audit.enabled %}audit {% endif %}neutronapiapp_v2_0
 
 [composite:neutronversions_composite]
 use = call:neutron.auth:pipeline_factory
 noauth = cors http_proxy_to_wsgi neutronversions
 keystone = cors http_proxy_to_wsgi {% if server.audit.enabled %}audit {% endif %}neutronversions
+
+{%- if server.backend.engine == "contrail" and server.backend.rbac %}
+[filter:user_token]
+paste.filter_factory = neutron_plugin_contrail.plugins.opencontrail.neutron_middleware:token_factory
+{%- endif %}
 
 [filter:request_id]
 paste.filter_factory = oslo_middleware:RequestId.factory
