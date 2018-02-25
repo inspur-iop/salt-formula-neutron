@@ -77,13 +77,17 @@ neutron_server_service:
 
 {% if server.backend.engine in ["ml2", "ovn"] %}
 
+ml2_packages:
+  pkg.installed:
+  - names: {{ server.pkgs_ml2 }}
+
 /etc/neutron/plugins/ml2/ml2_conf.ini:
   file.managed:
   - source: salt://neutron/files/{{ server.version }}/ml2_conf.ini
   - template: jinja
-  - makedirs: True
   - require:
     - pkg: neutron_server_packages
+    - pkg: ml2_packages
   - watch_in:
     - service: neutron_server_services
 
