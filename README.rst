@@ -747,6 +747,17 @@ Neutron with VLAN-aware-VMs
       gateway:
         vlan_aware_vms: true
 
+Neutron with DHCP agent on compute node
+---------------------------------------
+
+.. code-block:: yaml
+
+    neutron:
+      ....
+      compute:
+        dhcp_agent_enabled: true
+      ....
+
 Neutron with OVN
 ----------------
 
