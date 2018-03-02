@@ -48,6 +48,31 @@ neutron_sriov_service:
 
 {% endif %}
 
+{% if compute.get('dhcp_agent_enabled', False) %}
+neutron_dhcp_agent_packages:
+  pkg.installed:
+  - names:
+    - neutron-dhcp-agent
+
+neutron_dhcp_agent:
+  service.running:
+    - enable: true
+    - names:
+      - neutron-dhcp-agent
+    - watch:
+      - file: /etc/neutron/dhcp_agent.ini
+    - require:
+      - pkg: neutron_dhcp_agent_packages
+
+/etc/neutron/dhcp_agent.ini:
+  file.managed:
+  - source: salt://neutron/files/{{ compute.version }}/dhcp_agent.ini
+  - template: jinja
+  - require:
+    - pkg: neutron_dhcp_agent_packages
+
+{% endif %}
+
 {% if compute.dvr %}
 
 {%- if fwaas.get('enabled', False) %}
@@ -124,6 +149,9 @@ neutron_compute_services:
 {%- endif %}
 {%- if compute.dvr %}
   {%- do neutron_compute_services_list.extend(['neutron-l3-agent', 'neutron-metadata-agent']) %}
+{%- endif %}
+{%- if compute.get('dhcp_agent_enabled', False) %}
+  {%- do neutron_compute_services_list.append('neutron-dhcp-agent') %}
 {%- endif %}
 
 {%- for service_name in neutron_compute_services_list %}

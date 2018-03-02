@@ -7,6 +7,7 @@ parameters:
     openstack_log_appender: false
     openstack_fluentd_handler_enabled: false
     openstack_ossyslog_handler_enabled: false
+    compute_dhcp_agent_enabled: false
   neutron:
     compute:
       enabled: true
@@ -20,6 +21,7 @@ parameters:
         virtual_host: '/openstack'
       local_ip: ${_param:tenant_address}
       dvr: false
+      dhcp_agent_enabled: ${_param:compute_dhcp_agent_enabled}
       external_access: false
       security_groups_enabled: true
       qos: false
