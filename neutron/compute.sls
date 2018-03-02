@@ -6,6 +6,14 @@ neutron_compute_packages:
   pkg.installed:
   - names: {{ compute.pkgs }}
 
+{% if compute.get('bgp_vpn', {}).get('enabled', False) %}
+{% if compute.bgp_vpn.driver == "bagpipe" %}
+bagpipe_packages:
+  pkg.installed:
+  - names: {{ compute.pkgs_bagpipe }}
+{% endif %}
+{% endif %}
+
 /etc/neutron/neutron.conf:
   file.managed:
   - source: salt://neutron/files/{{ compute.version }}/neutron-generic.conf.{{ grains.os_family }}

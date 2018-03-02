@@ -747,6 +747,28 @@ Neutron with VLAN-aware-VMs
       gateway:
         vlan_aware_vms: true
 
+Neutron with BGP VPN
+---------------------------
+
+.. code-block:: yaml
+
+    neutron:
+      server:
+        version: pike
+        bgp_vpn:
+          enabled: false
+          driver: bagpipe # Options: bagpipe/opencontrail/opendaylight
+      ....
+      compute:
+        version: pike
+        bgp_vpn:
+          enabled: false
+          driver: bagpipe # Options: bagpipe/opencontrail/opendaylight
+        backend:
+          extension:
+            bagpipe_bgpvpn:
+              enabled: True
+
 Neutron with DHCP agent on compute node
 ---------------------------------------
 

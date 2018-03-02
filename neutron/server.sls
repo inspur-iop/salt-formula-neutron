@@ -319,6 +319,29 @@ neutron_db_manage:
 {%- endif %}
 {%- endif %}
 
+{% if server.get('bgp_vpn', {}).get('enabled', False) %}
+
+bgpvpn_packages:
+  pkg.installed:
+  - names: {{ server.pkgs_bgpvpn }}
+
+bgpvpn_db_manage:
+  cmd.run:
+  - name: neutron-db-manage --config-file /etc/neutron/neutron.conf --subproject networking-bgpvpn upgrade head
+  - require:
+    - file: /etc/neutron/neutron.conf
+    - pkg: bgpvpn_packages
+
+{% if server.bgp_vpn.driver == "bagpipe" %}
+
+bagpipe_packages:
+  pkg.installed:
+  - names: {{ server.pkgs_bagpipe }}
+
+{% endif %}
+
+{% endif %}
+
 neutron_server_services:
   service.running:
   - names: {{ server.services }}

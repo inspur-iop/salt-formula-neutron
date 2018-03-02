@@ -10,6 +10,7 @@
     'Debian': {
         'pkgs': ['neutron-openvswitch-agent', 'openvswitch-switch', 'python-pycadf'],
         'pkgs_ovn': ['ovn-common', 'ovn-host'],
+        'pkgs_bagpipe': ['python-networking-bagpipe'],
         'services': ['neutron-openvswitch-agent'],
         'services_ovn': ['ovn-host'],
         'dpdk': false,
@@ -28,6 +29,7 @@
     'RedHat': {
         'pkgs': ['openstack-neutron-openvswitch', 'openvswitch', 'python-pycadf'],
         'pkgs_ovn': ['openvswitch-ovn'],
+        'pkgs_bagpipe': ['python-networking-bagpipe'],
         'services': ['neutron-openvswitch-agent'],
         'services_ovn': ['ovn-host'],
         'dpdk': false,
@@ -84,6 +86,8 @@
         'pkgs_ovn': ['python-networking-ovn', 'ovn-common', 'ovn-central'],
         'pkgs_ml2': ['neutron-plugin-ml2'],
         'pkgs_l2gw': ['python-networking-l2gw'],
+        'pkgs_bgpvpn': ['python-networking-bgpvpn'],
+        'pkgs_bagpipe': ['python-networking-bagpipe'],
         'services': ['neutron-server'],
         'services_ovn': ['ovn-central'],
         'notification': False,
@@ -106,6 +110,8 @@
         'pkgs': ['openstack-neutron'],
         'pkgs_ovn': ['openvswitch-ovn', 'python-networking-ovn'],
         'pkgs_l2gw': ['python2-networking-l2gw'],
+        'pkgs_bgpvpn': ['python-networking-bgpvpn'],
+        'pkgs_bagpipe': ['python-networking-bagpipe'],
         'services': ['neutron-server'],
         'services_ovn': ['ovn-central'],
         'notification': False,

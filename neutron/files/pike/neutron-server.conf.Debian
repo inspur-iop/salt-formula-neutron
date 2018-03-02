@@ -56,6 +56,7 @@ service_plugins ={{ l3_plugin }}, neutron.services.metering.metering_plugin.Mete
 {%- if server.get('qos', 'True') -%},neutron.services.qos.qos_plugin.QoSPlugin{%- endif -%}
 {%- if server.get('vlan_aware_vms', False) -%},trunk{%- endif -%}
 {%- if server.l2gw is defined and server.l2gw.get('enabled', False) -%},networking_l2gw.services.l2gateway.plugin.L2GatewayPlugin{%- endif -%}
+{%- if server.get('bgp_vpn', {}).get('enabled', False) -%},bgpvpn{%- endif -%}
 
 {% endif %}
 
@@ -2201,6 +2202,23 @@ quota_driver = neutron_plugin_contrail.plugins.opencontrail.quota.driver.QuotaDr
 # cipher list format. (string value)
 #ciphers = <None>
 [service_providers]
+
+{% if server.get('bgp_vpn', {}).get('enabled', False) -%}
+
+{%- if server.bgp_vpn.driver == "bagpipe" -%}
+
+service_provider = BGPVPN:BaGPipe:networking_bgpvpn.neutron.services.service_drivers.bagpipe.bagpipe.BaGPipeBGPVPNDriver:default
+
+{%- elif server.bgp_vpn.driver == "opencontrail" -%}
+
+service_provider = BGPVPN:OpenContrail:networking_bgpvpn.neutron.services.service_drivers.opencontrail.opencontrail.OpenContrailBGPVPNDriver:default
+
+{%- elif server.bgp_vpn.driver == "opendaylight" -%}
+
+service_provider = BGPVPN:OpenDaylight:networking_bgpvpn.neutron.services.service_drivers.opendaylight.odl.OpenDaylightBgpvpnDriver:default
+
+{%- endif -%}
+{%- endif -%}
 
 {% if server.lbaas is defined -%}
 

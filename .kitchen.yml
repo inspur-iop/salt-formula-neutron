@@ -98,6 +98,11 @@ suites:
       pillars-from-files:
         neutron.sls: tests/pillar/compute_ovn.sls
 
+  - name: compute_bgpvpn
+    provisioner:
+      pillars-from-files:
+        neutron.sls: tests/pillar/compute_bgpvpn.sls
+
   - name: control_cluster
     provisioner:
       pillars-from-files:
@@ -142,6 +147,11 @@ suites:
     provisioner:
       pillars-from-files:
         neutron.sls: tests/pillar/control_ovn.sls
+
+  - name: control_bgpvpn
+    provisioner:
+      pillars-from-files:
+        neutron.sls: tests/pillar/control_bgpvpn.sls
 
   - name: gateway_dvr
     provisioner:
