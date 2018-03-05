@@ -850,6 +850,57 @@ Network/Gateway node:
             ovsdb2: 10.164.4.33:6632
 
 
+OpenDaylight integration
+------------------------
+
+Control node:
+
+.. code-block:: yaml
+
+  neutron:
+    server:
+      backend:
+        opendaylight: true
+        router: odl-router_v2
+        host: 10.20.0.77
+        rest_api_port: 8282
+        user: admin
+        password: admin
+        ovsdb_connection: tcp:127.0.0.1:6639
+        enable_websocket: true
+        enable_dhcp_service: false
+        mechanism:
+          ovs:
+            driver: opendaylight_v2
+
+Network/Gateway node:
+
+.. code-block:: yaml
+
+  neutron:
+    gateway:
+      backend:
+        router: odl-router_v2
+        ovsdb_connection: tcp:127.0.0.1:6639
+      opendaylight:
+        ovsdb_server_iface: ptcp:6639:127.0.0.1
+        ovsdb_odl_iface: tcp:10.20.0.77:6640
+        tunnel_ip: 10.1.0.110
+        provider_mappings: physnet1:br-floating
+
+Compute node:
+
+.. code-block:: yaml
+
+  neutron:
+    compute:
+      opendaylight:
+        ovsdb_server_iface: ptcp:6639:127.0.0.1
+        ovsdb_odl_iface: tcp:10.20.0.77:6640
+        tunnel_ip: 10.1.0.105
+        provider_mappings: physnet1:br-floating
+
+
 Neutron Server
 --------------
 

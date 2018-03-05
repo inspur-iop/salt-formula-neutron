@@ -50,7 +50,7 @@ core_plugin = neutron.plugins.ml2.plugin.Ml2Plugin
 {% set l3_plugin = 'networking_ovn.l3.l3_ovn.OVNL3RouterPlugin' %}
 {% endif %}
 
-service_plugins ={{ l3_plugin }}, neutron.services.metering.metering_plugin.MeteringPlugin
+service_plugins = {{ server.backend.get('router', l3_plugin)}},metering
 {%- if server.lbaas is defined -%},lbaasv2{%- endif -%}
 {%- if fwaas.get('enabled', False) -%},{{ fwaas[fwaas.api_version]['service_plugin'] }}{%- endif -%}
 {%- if server.get('qos', 'True') -%},neutron.services.qos.qos_plugin.QoSPlugin{%- endif -%}
@@ -2277,4 +2277,9 @@ project_name = {{ server.identity.tenant }}
 username = {{ server.identity.user }}
 password = {{ server.identity.password }}
 auth_url=http://{{ server.identity.host }}:35357
+{%- endif %}
+
+{%- if server.backend.ovsdb_connection is defined %}
+[ovs]
+ovsdb_connection = {{ server.backend.ovsdb_connection }}
 {%- endif %}
