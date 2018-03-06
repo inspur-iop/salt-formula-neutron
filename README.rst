@@ -26,6 +26,7 @@ Neutron Server on the controller node
         api_workers: 2
         rpc_workers: 2
         rpc_state_report_workers: 2
+        root_helper_daemon: false
         bind:
           address: 172.20.0.1
           port: 9696
