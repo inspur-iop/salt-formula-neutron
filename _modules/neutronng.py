@@ -41,19 +41,9 @@ def _autheticate(func_name):
                 connection_args.update({kwarg: kwargs[kwarg]})
             elif '__' not in kwarg:
                 nkwargs.update({kwarg: kwargs[kwarg]})
-        kstone = __salt__['keystone.auth'](**connection_args)
-        token = kstone.auth_token
-
-        if kwargs.get('connection_endpoint_type') == None:
-            endpoint_type = 'internalURL'
-        else:
-            endpoint_type = kwargs.get('connection_endpoint_type')
-
-        endpoint = kstone.service_catalog.url_for(
-            service_type='network',
-            endpoint_type=endpoint_type)
-        neutron_interface = client.Client(
-            endpoint_url=endpoint, token=token)
+        kstone = __salt__['keystoneng.auth'](**connection_args)
+        endpoint_type = kwargs.get('connection_endpoint_type', 'internal')
+        neutron_interface = client.Client(session=kstone.session, endpoint_type=endpoint_type)
         return_data = func_name(neutron_interface, *args, **nkwargs)
         # TODO(vsaienko) drop this formatting when all commands are updated
         # to return dictionary
