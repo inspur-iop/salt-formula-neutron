@@ -747,7 +747,7 @@ Neutron with VLAN-aware-VMs
       gateway:
         vlan_aware_vms: true
 
-Neutron with BGP VPN
+Neutron with BGP VPN (BaGPipe driver)
 ---------------------------
 
 .. code-block:: yaml
@@ -756,14 +756,19 @@ Neutron with BGP VPN
       server:
         version: pike
         bgp_vpn:
-          enabled: false
+          enabled: true
           driver: bagpipe # Options: bagpipe/opencontrail/opendaylight
       ....
       compute:
         version: pike
         bgp_vpn:
-          enabled: false
+          enabled: true
           driver: bagpipe # Options: bagpipe/opencontrail/opendaylight
+          bagpipe:
+            local_address: 192.168.20.20 # IP address for mpls/gre tunnels
+            peers: 192.168.20.30 # IP addresses of BGP peers
+            autonomous_system: 64512 # Autonomous System number
+            enable_rtc: True # Enable RT Constraint (RFC4684)
         backend:
           extension:
             bagpipe_bgpvpn:

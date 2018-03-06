@@ -6,12 +6,9 @@ neutron_compute_packages:
   pkg.installed:
   - names: {{ compute.pkgs }}
 
-{% if compute.get('bgp_vpn', {}).get('enabled', False) %}
-{% if compute.bgp_vpn.driver == "bagpipe" %}
-bagpipe_packages:
-  pkg.installed:
-  - names: {{ compute.pkgs_bagpipe }}
-{% endif %}
+{% if compute.get('bgp_vpn', {}).get('enabled', False) and compute.bgp_vpn.driver == "bagpipe" %}
+include:
+  - .services._bagpipe
 {% endif %}
 
 /etc/neutron/neutron.conf:

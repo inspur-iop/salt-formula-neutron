@@ -7,6 +7,11 @@ neutron:
     bgp_vpn:
       enabled: true
       driver: bagpipe
+      bagpipe:
+        local_address: 192.168.20.20
+        peers: 192.168.20.30
+        autonomous_system: 64512
+        enable_rtc: True
     backend:
       extension:
         bagpipe_bgpvpn:
