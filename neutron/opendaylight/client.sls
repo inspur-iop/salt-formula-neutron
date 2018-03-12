@@ -9,26 +9,21 @@ python-networking-odl:
 
 {%- if not grains.get('noservices', False) %}
 
+{%- set ovs_manager = [neutron.opendaylight.ovsdb_odl_iface] %}
+{%- do ovs_manager.append(neutron.opendaylight.ovsdb_server_iface) if neutron.opendaylight.ovsdb_server_iface is defined %}
+
 ovs_set_manager:
   cmd.run:
-  - name: 'ovs-vsctl set-manager {{ neutron.opendaylight.ovsdb_server_iface }} {{ neutron.opendaylight.ovsdb_odl_iface }}'
-  - unless: 'ovs-vsctl get-manager | fgrep -x {{ neutron.opendaylight.ovsdb_odl_iface }}'
+  - name: 'ovs-vsctl set-manager {{ ovs_manager|join(' ') }}'
+  - unless: 'ovs-vsctl get-manager | fgrep -qx {{ neutron.opendaylight.ovsdb_odl_iface }}'
 
-ovs_set_tunnel_endpoint:
-  cmd.run:
-  - name: 'ovs-vsctl set Open_vSwitch . other_config:local_ip={{ neutron.opendaylight.tunnel_ip }}'
-  - unless: 'ovs-vsctl get Open_vSwitch . other_config | fgrep local_ip="{{ neutron.opendaylight.tunnel_ip }}"'
-
-{%- if neutron.opendaylight.provider_mappings is defined %}
-ovs_set_provider_mappings:
-  cmd.run:
-  - name: 'ovs-vsctl set Open_vSwitch . other_config:provider_mappings={{ neutron.opendaylight.provider_mappings }}'
-  - unless: 'ovs-vsctl get Open_vSwitch . other_config | fgrep provider_mappings="{{ neutron.opendaylight.provider_mappings }}"'
-{%- endif %}
+{%- set ovs_hostconfig = ['--noovs_dpdk'] %}
+{%- do ovs_hostconfig.append('--local_ip=' ~ neutron.opendaylight.tunnel_ip) if neutron.opendaylight.tunnel_ip is defined %}
+{%- do ovs_hostconfig.append('--bridge_mapping=' ~ neutron.opendaylight.provider_mappings) if neutron.opendaylight.provider_mappings is defined %}
 
 neutron_odl_ovs_hostconfig:
   cmd.run:
-  - name: 'neutron-odl-ovs-hostconfig --noovs_dpdk'
+  - name: 'neutron-odl-ovs-hostconfig {{ ovs_hostconfig|join(' ') }}'
   - require:
     - pkg: python-networking-odl
 

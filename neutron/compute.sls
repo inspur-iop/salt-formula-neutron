@@ -2,6 +2,36 @@
 {%- if compute.enabled %}
 
 {% if compute.backend.engine == "ml2" %}
+
+{% if compute.get('dhcp_agent_enabled', False) %}
+neutron_dhcp_agent_packages:
+  pkg.installed:
+  - names:
+    - neutron-dhcp-agent
+
+neutron_dhcp_agent:
+  service.running:
+    - enable: true
+    - names:
+      - neutron-dhcp-agent
+    - watch:
+      - file: /etc/neutron/dhcp_agent.ini
+    - require:
+      - pkg: neutron_dhcp_agent_packages
+
+/etc/neutron/dhcp_agent.ini:
+  file.managed:
+  - source: salt://neutron/files/{{ compute.version }}/dhcp_agent.ini
+  - template: jinja
+  - require:
+    - pkg: neutron_dhcp_agent_packages
+
+{% endif %}
+
+{%- if compute.opendaylight is defined %}
+include:
+  - .opendaylight.client
+{%- else %}
 neutron_compute_packages:
   pkg.installed:
   - names: {{ compute.pkgs }}
@@ -50,31 +80,6 @@ neutron_sriov_service:
     {%- if compute.message_queue.get('ssl',{}).get('enabled', False) %}
     - file: rabbitmq_ca_neutron_compute
     {%- endif %}
-
-{% endif %}
-
-{% if compute.get('dhcp_agent_enabled', False) %}
-neutron_dhcp_agent_packages:
-  pkg.installed:
-  - names:
-    - neutron-dhcp-agent
-
-neutron_dhcp_agent:
-  service.running:
-    - enable: true
-    - names:
-      - neutron-dhcp-agent
-    - watch:
-      - file: /etc/neutron/dhcp_agent.ini
-    - require:
-      - pkg: neutron_dhcp_agent_packages
-
-/etc/neutron/dhcp_agent.ini:
-  file.managed:
-  - source: salt://neutron/files/{{ compute.version }}/dhcp_agent.ini
-  - template: jinja
-  - require:
-    - pkg: neutron_dhcp_agent_packages
 
 {% endif %}
 
@@ -243,10 +248,7 @@ rabbitmq_ca_neutron_compute:
 {%- endif %}
 {%- endif %}
 
-{%- if compute.opendaylight is defined %}
-include:
-  - .opendaylight.client
-{%- endif %}
+{%- endif %}{# !OpenDaylight #}
 
 {%- elif compute.backend.engine == "ovn" %}
 
