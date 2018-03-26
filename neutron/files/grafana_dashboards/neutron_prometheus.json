@@ -494,7 +494,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "openstack_neutron_networks_total",
+              "expr": "max(openstack_neutron_networks_total)",
               "format": "time_series",
               "intervalFactor": 2,
               "refId": "A",
@@ -570,7 +570,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "openstack_neutron_subnets_total",
+              "expr": "max(openstack_neutron_subnets_total)",
               "format": "time_series",
               "intervalFactor": 2,
               "refId": "A",
@@ -722,7 +722,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "openstack_neutron_routers_total",
+              "expr": "max(openstack_neutron_routers_total)",
               "format": "time_series",
               "intervalFactor": 2,
               "refId": "A",
@@ -798,7 +798,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "openstack_neutron_floatingips_total",
+              "expr": "max(openstack_neutron_floatingips_total)",
               "format": "time_series",
               "intervalFactor": 2,
               "refId": "A",
