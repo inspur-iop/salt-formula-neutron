@@ -108,6 +108,9 @@ allow_overlapping_ips = True
 # this machine. All the agents and services running on this machine must use
 # the same host value. (string value)
 #host = example.domain
+{% if neutron.host is defined %}
+host = {{ neutron.host }}
+{% endif %}
 
 # Send notification to nova when port status changes (boolean value)
 #notify_nova_on_port_status_changes = true

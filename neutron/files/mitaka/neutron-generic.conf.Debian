@@ -130,6 +130,9 @@ allow_overlapping_ips = True
 # this machine. All the agents and services running on this machine must use
 # the same host value. (string value)
 #host = example.domain
+{% if neutron.host is defined %}
+host = {{ neutron.host }}
+{% endif %}
 
 # Ensure that configured gateway is on subnet. For IPv6, validate only if
 # gateway is not a link local address. Deprecated, to be removed during the
