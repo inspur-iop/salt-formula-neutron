@@ -12,13 +12,20 @@ l2gw_agent_packages:
   - require:
     - pkg: l2gw_agent_packages
 
+{%- if not grains.get('noservices', False) %}
+
+# TODO: use service.masked state instead once salt get updated to 2017.7.0+
+service.mask:
+  module.run:
+  - m_name: neutron-l2gateway-agent
+  - require_in:
+    - pkg: l2gw_agent_packages
+
 neutron-l2gateway-agent:
   service.running:
   - enable: true
-  {%- if grains.get('noservices') %}
-  - onlyif: /bin/false
-  {%- endif %}
   - watch:
     - file: /etc/neutron/l2gateway_agent.ini
 
+{%- endif %}
 {%- endif %}
