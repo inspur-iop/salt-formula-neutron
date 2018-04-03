@@ -26,6 +26,7 @@ neutron-l2gateway-agent:
   - enable: true
   - watch:
     - file: /etc/neutron/l2gateway_agent.ini
+    - file: /etc/neutron/neutron.conf
 
 {%- endif %}
 {%- endif %}
