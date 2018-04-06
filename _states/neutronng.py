@@ -84,7 +84,8 @@ def network_present(name=None,
                     provider_segmentation_id=None,
                     profile=None,
                     endpoint_type=None,
-                    dns_domain=None):
+                    dns_domain=None,
+                    is_default=None):
     '''
     Ensure that the neutron network is present with the specified properties.
     name
@@ -105,7 +106,8 @@ def network_present(name=None,
         shared=shared,
         tenant_id=tenant_id,
         provider_segmentation_id=provider_segmentation_id,
-        dns_domain=dns_domain)
+        dns_domain=dns_domain,
+        is_default=is_default)
 
     if len(existing_networks) == 0:
         network_arguments.update(connection_args)

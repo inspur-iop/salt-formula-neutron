@@ -61,6 +61,9 @@ neutron_openstack_network_{{ network_name }}:
     {%- if network.dns_domain is defined %}
     - dns_domain: {{ network.dns_domain }}
     {%- endif %}
+    {%- if network.is_default is defined %}
+    - is_default: {{ network.is_default }}
+    {%- endif %}
 
 {%- if network.subnet is defined %}
 
