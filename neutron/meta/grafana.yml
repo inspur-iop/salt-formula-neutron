@@ -77,6 +77,21 @@ dashboard:
               cluster_status:
                 rawQuery: true
                 query: SELECT last(value) FROM cluster_status WHERE cluster_name = 'neutron-control' AND environment_label = '$environment' AND $timeFilter GROUP BY time($interval) fill(null)
+{%- if pillar.neutron.get('server', {}).get('backend', {}).engine is defined and pillar.neutron.server.backend.engine == "ml2" %}
+      ost-data-plane:
+        title: OpenStack Data Plane
+        panel:
+          neutron:
+            title: Neutron
+            links:
+            - dashboard: Neutron
+              title: Neutron
+              type: dashboard
+            target:
+              cluster_status:
+                rawQuery: true
+                query: SELECT last(value) FROM cluster_status WHERE cluster_name = 'neutron-data' AND environment_label = '$environment' AND $timeFilter GROUP BY time($interval) fill(null)
+{%- endif %}
   main_prometheus:
     datasource: prometheus
     row:
@@ -93,19 +108,6 @@ dashboard:
               cluster_status:
                 expr: avg(openstack_api_check_status{service=~"neutron.*"})
 {%- if pillar.neutron.get('server', {}).get('backend', {}).engine is defined and pillar.neutron.server.backend.engine == "ml2" %}
-      ost-data-plane:
-        title: OpenStack Data Plane
-        panel:
-          neutron:
-            title: Neutron
-            links:
-            - dashboard: Neutron
-              title: Neutron
-              type: dashboard
-            target:
-              cluster_status:
-                rawQuery: true
-                query: SELECT last(value) FROM cluster_status WHERE cluster_name = 'neutron-data' AND environment_label = '$environment' AND $timeFilter GROUP BY time($interval) fill(null)
   neutron_influxdb:
     datasource: influxdb
     format: json
