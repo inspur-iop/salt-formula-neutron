@@ -17,7 +17,13 @@ ovs_set_manager:
   - name: 'ovs-vsctl set-manager {{ ovs_manager|join(' ') }}'
   - unless: 'ovs-vsctl get-manager | fgrep -qx {{ neutron.opendaylight.ovsdb_odl_iface }}'
 
+{%- if neutron.dpdk|default(False) %}
+{%- set ovs_hostconfig = ['--ovs_dpdk --vhostuser_mode=' ~ neutron.vhost_mode|default('server')] %}
+{%- do ovs_hostconfig.append('--vhostuser_socket_dir=' ~ neutron.vhost_socket_dir) if neutron.vhost_socket_dir is defined %}
+{%- else %}
 {%- set ovs_hostconfig = ['--noovs_dpdk'] %}
+{%- endif %}
+
 {%- do ovs_hostconfig.append('--local_ip=' ~ neutron.opendaylight.tunnel_ip) if neutron.opendaylight.tunnel_ip is defined %}
 {%- do ovs_hostconfig.append('--bridge_mapping=' ~ neutron.opendaylight.provider_mappings) if neutron.opendaylight.provider_mappings is defined %}
 

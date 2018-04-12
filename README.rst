@@ -694,6 +694,7 @@ Enable datapath netdev for neutron openvswitch agent
       compute:
         version: mitaka
         dpdk: True
+        vhost_mode: client # options: client|server (default)
         vhost_socket_dir: /var/run/openvswitch
         backend:
           engine: ml2
