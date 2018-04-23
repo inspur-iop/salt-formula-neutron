@@ -771,7 +771,7 @@ Neutron with BGP VPN (BaGPipe driver)
             autonomous_system: 64512 # Autonomous System number
             enable_rtc: True # Enable RT Constraint (RFC4684)
         backend:
-          extension:
+          ovs_extension: # for OVS agent only, not supported in SRIOV agent
             bagpipe_bgpvpn:
               enabled: True
 
@@ -1199,6 +1199,25 @@ Enable Neutron extensions (QoS, DNS, etc.)
             qos
               enabled: True
 
+Different Neutron extensions for different agents
+-------------------------------------------------
+.. code-block:: yaml
+
+    neutron:
+      server:
+        backend:
+          extension: # common extensions for OVS and SRIOV agents
+            dns:
+              enabled: True
+              ...
+            qos
+              enabled: True
+          ovs_extension: # OVS specific extensions
+            bagpipe_bgpvpn:
+              enabled: True
+          sriov_extension: # SRIOV specific extensions
+            dummy:
+              enabled: True
 
 
 Neutron with Designate
