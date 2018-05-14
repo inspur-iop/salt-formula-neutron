@@ -406,3 +406,13 @@ def delete_router(neutron_interface, router_id):
     '''
     neutron_interface.delete_router(router_id)
 
+
+@_autheticate
+def list_extensions(neutron_interface, **kwargs):
+    '''
+    list all extensions
+    CLI Example:
+    .. code-block:: bash
+        salt '*' neutronng.list_extensions
+    '''
+    return neutron_interface.list_extensions(**kwargs)
