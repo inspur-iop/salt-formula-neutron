@@ -1295,6 +1295,32 @@ Also it is possible to configure this with pillar:
           ossyslog:
             enabled: true
 
+Logging levels pillar example:
+
+.. code-block:: yaml
+
+  neutron:
+    server:
+      logging:
+        log_appender: true
+        loggers:
+          root:
+            level: 'DEBUG'
+          neutron:
+            level: 'DEBUG'
+          amqplib:
+            level: 'DEBUG'
+          sqlalchemy:
+            level: 'DEBUG'
+          boto:
+            level: 'DEBUG'
+          suds:
+            level: 'DEBUG'
+          eventletwsgi:
+            level: 'DEBUG'
+    ......
+
+
 Documentation and Bugs
 ======================
 
