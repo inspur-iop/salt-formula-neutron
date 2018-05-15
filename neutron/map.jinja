@@ -6,11 +6,18 @@
     'enabled': false }
 %}
 
+{%- if grains.os_family == "Debian" %}
+{%- set compute_pkgs_ovn = ['ovn-common', 'ovn-host'] %}
+{%- if pillar.neutron.compute is defined and pillar.neutron.compute.metadata is defined %}
+{%- do compute_pkgs_ovn.extend(['neutron-common', 'python-networking-ovn', 'haproxy']) %}
+{%- endif %}
+{%- endif %}
+
 {% set compute = salt['grains.filter_by']({
     'BaseDefaults': default_params,
     'Debian': {
         'pkgs': ['neutron-openvswitch-agent', 'python-pycadf'],
-        'pkgs_ovn': ['ovn-common', 'ovn-host'],
+        'pkgs_ovn': compute_pkgs_ovn,
         'pkgs_bagpipe': ['python-networking-bagpipe'],
         'services': ['neutron-openvswitch-agent'],
         'services_ovn': ['ovn-host'],

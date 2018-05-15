@@ -853,6 +853,7 @@ Control node:
           ovn:
             ovn_l3_scheduler: leastloaded # valid options: chance, leastloaded
             neutron_sync_mode: repair # valid options: log, off, repair
+            metadata_enabled: True
         ovn_ctl_opts:
           db-nb-create-insecure-remote: 'yes'
           db-sb-create-insecure-remote: 'yes'
@@ -868,6 +869,13 @@ Compute node:
         external_access: false
         backend:
           engine: ovn
+          ovsdb_connection: tcp:127.0.0.1:6640
+        metadata:
+          enabled: true
+          ovsdb_server_iface: ptcp:6640:127.0.0.1
+          host: 10.1.0.101
+          password: unsegreto
+
 
 Neutron L2 Gateway
 ----------------

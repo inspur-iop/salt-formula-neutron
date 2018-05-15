@@ -27,6 +27,9 @@ provisioner:
     - name: keystone
       repo: git
       source: https://github.com/salt-formulas/salt-formula-keystone
+    - name: oslo_templates
+      repo: git
+      source: https://github.com/salt-formulas/salt-formula-oslo-templates
   state_top:
     base:
       "*":

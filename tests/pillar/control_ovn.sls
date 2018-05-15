@@ -1,7 +1,7 @@
 neutron:
   server:
     enabled: true
-    version: ocata
+    version: queens
     api_workers: 2
     rpc_workers: 2
     rpc_state_report_workers: 2
@@ -15,6 +15,7 @@ neutron:
       ovn:
         ovn_l3_scheduler: chance
         neutron_sync_mode: off
+        metadata_enabled: true
     controller_vip: 172.16.10.101
     dvr: false
     l3_ha: false
@@ -60,7 +61,7 @@ linux:
   system:
     enabled: true
     repo:
-      mirantis_openstack_ocata:
-        source: "deb http://mirror.fuel-infra.org/mcp-repos/ocata/xenial ocata main"
+      mirantis_openstack_queens:
+        source: "deb http://mirror.fuel-infra.org/mcp-repos/queens/xenial queens main"
         architectures: amd64
-        key_url: "http://mirror.fuel-infra.org/mcp-repos/ocata/xenial/archive-mcpocata.key"
+        key_url: "http://mirror.fuel-infra.org/mcp-repos/queens/xenial/archive-mcpqueens.key"

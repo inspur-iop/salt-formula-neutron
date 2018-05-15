@@ -93,6 +93,10 @@ ovn_services:
   - require:
     - pkg: ovn_packages
     - sls: neutron._ssl.rabbitmq
+
+      {%- if compute.metadata is defined %}
+        {%- include "neutron/agents/ovn_metadata.sls" %}
+      {%- endif %}
     {%- endif %}
 
   {%- endif %}

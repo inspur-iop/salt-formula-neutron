@@ -1,0 +1,22 @@
+[Unit]
+Description=OpenStack Networking OVN Metadata Agent
+After=rsyslog.target networking.target openvswitch-switch.service
+Requires=openvswitch-switch.service
+
+[Service]
+Type=simple
+User=neutron
+Group=neutron
+PermissionsStartOnly=true
+WorkingDirectory=/var/lib/neutron
+ExecStartPre=/bin/mkdir -p /var/lock/neutron /var/log/neutron /var/lib/neutron
+ExecStartPre=/bin/chown neutron:neutron /var/lock/neutron /var/lib/neutron
+ExecStartPre=/bin/chown neutron:adm /var/log/neutron
+ExecStart=/usr/bin/networking-ovn-metadata-agent --config-file /etc/neutron/plugins/ovn/metadata-agent.ini --config-file /etc/neutron/neutron.conf --log-file /var/log/neutron/ovn-metadata-agent.log
+PrivateTmp=false
+KillMode=process
+Restart=on-failure
+TimeoutStopSec=15
+
+[Install]
+WantedBy=multi-user.target
