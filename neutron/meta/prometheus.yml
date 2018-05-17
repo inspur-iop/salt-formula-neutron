@@ -1,78 +1,113 @@
 {%- from "neutron/map.jinja" import server, monitoring with context %}
 
 {%- if server.get('enabled', False) %}
+{%- set major_threshold = monitoring.endpoint_failed_major_threshold|float %}
 {%- raw %}
 server:
   alert:
-    NeutronAPIDown:
+    NeutronAPIOutage:
       if: >-
-        openstack_api_check_status{service=~"neutron.*"} == 0
-      for: 2m
+        openstack_api_check_status{name="neutron"} == 0
       labels:
-        severity: down
-        service: "{{ $labels.service }}"
+        severity: critical
+        service: neutron
       annotations:
-        summary: "Endpoint check for '{{ $labels.service }}' is down"
+        summary: "Neutron API outage"
         description: >-
-            Endpoint check for '{{ $labels.service }}' is down for 2 minutes
+          Neutron API is not accessible for the Neutron endpoint in the OpenStack service catalog.
     NeutronAPIServiceDown:
       if: >-
-        http_response_status{service=~"neutron-api"} == 0
+        http_response_status{name="neutron-api"} == 0
       for: 2m
       labels:
-        severity: down
-        service: "{{ $labels.service }}"
+        severity: minor
+        service: neutron
       annotations:
-        summary: "HTTP check for '{{ $labels.service }}' down"
+        summary: "Host neutron-api endpoint is not accessible"
         description: >-
-            The HTTP check for '{{ $labels.service }}' is down on {{ $labels.host }} for 2 minutes.
+          The host neutron-api endpoint on the {{ $labels.host }} node is not accessible for at least 2 minutes.
 {%- endraw %}
-{%- if server.get('backend', {}).engine is defined and server.backend.engine == "ml2" %}
-{%- raw %}
-    NeutronSomeAgentsDown:
+    NeutronAPIServiceDownMajor:
       if: >-
-        openstack_neutron_agents{state="down"} > 0 and ignoring(state) openstack_neutron_agents{state="up"} >= 2
+        count(http_response_status{name="neutron-api"} == 0) >= count(http_response_status{name="neutron-api"}) * {{ major_threshold }}
       for: 2m
       labels:
-        severity: warning
-        service: "{{ $labels.service }}"
+        severity: major
+        service: neutron
       annotations:
-        summary: "Some {{ $labels.service }} agents down"
+        summary: "{{major_threshold * 100}}% of host neutron-api endpoints are not accessible"
         description: >-
-            {{ $value }} '{{ $labels.service }}' agent(s) is/are down for 2 minutes
-    NeutronOnlyOneAgentUp:
+          {% raw %}{{ $value }} host neutron-api endpoints are not accessible for at least 2 minutes (at least {% endraw %}{{major_threshold * 100}}{% raw %}%).
+    NeutronAPIServiceOutage:
       if: >-
-        openstack_neutron_agents{state="up"} == 1 and ignoring(state) openstack_neutron_agents{state=~"down|disabled"} > 0
+        count(http_response_status{name="neutron-api"} == 0) == count(http_response_status{name="neutron-api"})
       for: 2m
       labels:
         severity: critical
-        service: "{{ $labels.service }}"
+        service: neutron
       annotations:
-        summary: "Only one {{ $labels.service }} agent up"
+        summary: "Host neutron-api outage"
         description: >-
-            Only one '{{ $labels.service }}' agent is up for 2 minutes
-    NeutronAllAgentsDown:
-      if: >-
-        openstack_neutron_agents{state="up"} == 0
-      for: 2m
-      labels:
-        severity: down
-        service: "{{ $labels.service }}"
-      annotations:
-        summary: "All {{ $labels.service }} agents down"
-        description: >-
-            All '{{ $labels.service }}' agents are down for 2 minutes
-    NeutronErrorLogsTooHigh:
+          All available host neutron-api endpoints are not accessible for at least 2 minutes.
 {%- endraw %}
+{%- if server.get('backend', {}).engine is defined and server.backend.engine == "ml2" %}
+{%- set minor_threshold = monitoring.agents_failed_minor_threshold|float %}
+{%- set major_threshold = monitoring.agents_failed_major_threshold|float %}
+{%- raw %}
+    NeutronAgentDown:
+      if: >-
+        openstack_neutron_agent_state == 0
+      labels:
+        severity: minor
+        service: neutron
+      annotations:
+        summary: "{{ $labels.binary }} agent is down"
+        description: >-
+          The {{ $labels.binary }} agent on the {{ $labels.hostname }} node is down.
+{%- endraw %}
+    NeutronAgentsDownMinor:
+      if: >-
+        count(openstack_neutron_agent_state == 0) by (binary) >= on (binary) count(openstack_neutron_agent_state) by (binary) * {{minor_threshold}}
+      labels:
+        severity: minor
+        service: neutron
+      annotations:
+        summary: "{{minor_threshold * 100}}%{% raw %} of {{ $labels.binary }} agents are down"
+        description: >-
+          {{ $value }} {{ $labels.binary }} agents are down {% endraw %}(at least {{minor_threshold * 100}}%).
+    NeutronAgentsDownMajor:
+      if: >-
+        count(openstack_neutron_agent_state == 0) by (binary) >= on (binary) count(openstack_neutron_agent_state) by (binary) * {{major_threshold}}
+      labels:
+        severity: major
+        service: neutron
+      annotations:
+        summary: "{{major_threshold * 100}}%{% raw %} of {{ $labels.binary }} agents are down"
+        description: >-
+          {{ $value }} {{ $labels.binary }} agents are down {% endraw %}(at least {{major_threshold * 100}}%).
+{%- raw %}
+    NeutronAgentOutage:
+      if: >-
+        count(openstack_neutron_agent_state == 0) by (binary) == on (binary) count(openstack_neutron_agent_state) by (binary)
+      labels:
+        severity: critical
+        service: neutron
+      annotations:
+        summary: "{{ $labels.binary }} agent outage"
+        description: >-
+          All {{ $labels.binary }} agents are down.
+{%- endraw %}
+    NeutronErrorLogsTooHigh:
       {%- set log_threshold = monitoring.error_log_rate|float %}
       if: >-
         sum(rate(log_messages{service="neutron",level=~"(?i:(error|emergency|fatal))"}[5m])) without (level) > {{ log_threshold }}
 {%- raw %}
       labels:
         severity: warning
-        service: "{{ $labels.service }}"
+        service: neutron
       annotations:
-        summary: 'Too many errors in {{ $labels.service }} logs'
-        description: 'The rate of errors in {{ $labels.service }} logs over the last 5 minutes is too high on node {{ $labels.host }} (current value={{ $value }}, threshold={%- endraw %}{{ log_threshold }}).'
+        summary: "High number of errors in Neutron logs"
+        description: "The average per-second rate of errors in Neutron logs on the {{ $labels.host }} node is {{ $value }} (as measured over the last 5 minutes)."
+{%- endraw %}
 {%- endif %}
 {%- endif %}
