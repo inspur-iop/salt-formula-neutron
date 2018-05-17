@@ -112,8 +112,7 @@ neutron_db_manage:
 {%- endif %}
 
 {%- if server.l2gw is defined %}
-include:
-  - .services.l2gw
+{%- include "neutron/services/_l2gw.sls" %}
 {%- endif %}
 
 {%- if server.backend.get('opendaylight', False) %}
