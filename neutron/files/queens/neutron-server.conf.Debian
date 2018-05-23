@@ -1,0 +1,531 @@
+{%- from "neutron/map.jinja" import fwaas, server with context %}
+[DEFAULT]
+
+#
+# From neutron
+#
+
+# Where to store Neutron state files. This directory must be writable by the
+# agent. (string value)
+#state_path = /var/lib/neutron
+state_path = /var/lib/neutron
+
+# The host IP to bind to. (unknown value)
+#bind_host = 0.0.0.0
+bind_host = {{ server.bind.address }}
+
+# The port to bind to (port value)
+# Minimum value: 0
+# Maximum value: 65535
+#bind_port = 9696
+bind_port = {{ server.bind.port }}
+
+# The path for API extensions. Note that this can be a colon-separated list of
+# paths. For example: api_extensions_path =
+# extensions:/path/to/more/exts:/even/more/exts. The __path__ of
+# neutron.extensions is appended to this, so if your extensions are in there
+# you don't need to specify them here. (string value)
+#api_extensions_path =
+
+# The type of authentication to use (string value)
+#auth_strategy = keystone
+auth_strategy = keystone
+
+{% if server.backend.engine == "contrail" %}
+
+api_extensions_path = extensions:/usr/lib/python2.7/dist-packages/neutron_plugin_contrail/extensions:/usr/lib/python2.7/dist-packages/neutron_lbaas/extensions
+# The core plugin Neutron will use (string value)
+core_plugin = neutron_plugin_contrail.plugins.opencontrail.contrail_plugin.NeutronPluginContrailCoreV2
+
+service_plugins = neutron_plugin_contrail.plugins.opencontrail.loadbalancer.v2.plugin.LoadBalancerPluginV2
+
+{% elif server.backend.engine in ["ml2", "ovn"] %}
+
+core_plugin = neutron.plugins.ml2.plugin.Ml2Plugin
+
+{% if server.backend.engine == "ml2" %}
+{% set l3_plugin = 'neutron.services.l3_router.l3_router_plugin.L3RouterPlugin' %}
+{% elif server.backend.engine == "ovn" %}
+{% set l3_plugin = 'networking_ovn.l3.l3_ovn.OVNL3RouterPlugin' %}
+{% endif %}
+
+service_plugins = {{ server.backend.get('router', l3_plugin)}},metering
+{%- if server.lbaas is defined -%},lbaasv2{%- endif -%}
+{%- if fwaas.get('enabled', False) -%},{{ fwaas[fwaas.api_version]['service_plugin'] }}{%- endif -%}
+{%- if server.get('qos', 'True') -%},neutron.services.qos.qos_plugin.QoSPlugin{%- endif -%}
+{%- if server.get('vlan_aware_vms', False) -%},trunk{%- endif -%}
+{%- if server.l2gw is defined and server.l2gw.get('enabled', False) -%},networking_l2gw.services.l2gateway.plugin.L2GatewayPlugin{%- endif -%}
+{%- if server.get('bgp_vpn', {}).get('enabled', False) -%},bgpvpn{%- endif -%}
+
+{% endif %}
+
+# The service plugins Neutron will use (list value)
+#service_plugins =
+
+# The base MAC address Neutron will use for VIFs. The first 3 octets will
+# remain unchanged. If the 4th octet is not 00, it will also be used. The
+# others will be randomly generated. (string value)
+#base_mac = fa:16:3e:00:00:00
+
+# Allow the usage of the bulk API (boolean value)
+#allow_bulk = true
+
+# The maximum number of items returned in a single response, value was
+# 'infinite' or negative integer means no limit (string value)
+#pagination_max_limit = -1
+pagination_max_limit = {{ server.pagination_max_limit|default('-1') }}
+
+# Default value of availability zone hints. The availability zone aware
+# schedulers use this when the resources availability_zone_hints is empty.
+# Multiple availability zones can be specified by a comma separated string.
+# This value can be empty. In this case, even if availability_zone_hints for a
+# resource is empty, availability zone is considered for high availability
+# while scheduling the resource. (list value)
+#default_availability_zones =
+
+# Maximum number of DNS nameservers per subnet (integer value)
+#max_dns_nameservers = 5
+
+# Maximum number of host routes per subnet (integer value)
+#max_subnet_host_routes = 20
+
+# Enables IPv6 Prefix Delegation for automatic subnet CIDR allocation. Set to
+# True to enable IPv6 Prefix Delegation for subnet allocation in a PD-capable
+# environment. Users making subnet creation requests for IPv6 subnets without
+# providing a CIDR or subnetpool ID will be given a CIDR via the Prefix
+# Delegation mechanism. Note that enabling PD will override the behavior of the
+# default IPv6 subnetpool. (boolean value)
+#ipv6_pd_enabled = false
+
+# DHCP lease duration (in seconds). Use -1 to tell dnsmasq to use infinite
+# lease times. (integer value)
+#dhcp_lease_duration = 86400
+dhcp_lease_duration = 600
+
+# Domain to use for building the hostnames (string value)
+#dns_domain = openstacklocal
+dns_domain = {{ server.dns_domain }}
+
+# Driver for external DNS integration. (string value)
+#external_dns_driver = <None>
+{%- if server.backend.get('extension', {}).get('dns', {}).get('enabled', False) %}
+external_dns_driver={{ server.backend.get('extension', {}).get('dns', {}).get('engine', '') }}
+{%- endif %}
+
+# Allow sending resource operation notification to DHCP agent (boolean value)
+#dhcp_agent_notification = true
+
+# Allow overlapping IP support in Neutron. Attention: the following parameter
+# MUST be set to False if Neutron is being used in conjunction with Nova
+# security groups. (boolean value)
+#allow_overlapping_ips = false
+allow_overlapping_ips = True
+
+# Hostname to be used by the Neutron server, agents and services running on
+# this machine. All the agents and services running on this machine must use
+# the same host value. (unknown value)
+#host = example.domain
+
+# This string is prepended to the normal URL that is returned in links to the
+# OpenStack Network API. If it is empty (the default), the URLs are returned
+# unchanged. (string value)
+#network_link_prefix = <None>
+
+# Send notification to nova when port status changes (boolean value)
+#notify_nova_on_port_status_changes = true
+notify_nova_on_port_status_changes = true
+
+# Send notification to nova when port data (fixed_ips/floatingip) changes so
+# nova can update its cache. (boolean value)
+#notify_nova_on_port_data_changes = true
+notify_nova_on_port_data_changes = true
+
+# Number of seconds between sending events to nova if there are any events to
+# send. (integer value)
+#send_events_interval = 2
+
+# Neutron IPAM (IP address management) driver to use. By default, the reference
+# implementation of the Neutron IPAM driver is used. (string value)
+#ipam_driver = internal
+
+# If True, then allow plugins that support it to create VLAN transparent
+# networks. (boolean value)
+#vlan_transparent = false
+
+# MTU of the underlying physical network. Neutron uses this value to calculate
+# MTU for all virtual network components. For flat and VLAN networks, neutron
+# uses this value without modification. For overlay networks such as VXLAN,
+# neutron automatically subtracts the overlay protocol overhead from this
+# value. Defaults to 1500, the standard value for Ethernet. (integer value)
+# Deprecated group/name - [ml2]/segment_mtu
+#global_physnet_mtu = 1500
+global_physnet_mtu = {{ server.get('global_physnet_mtu', '1500') }}
+
+# Number of backlog requests to configure the socket with (integer value)
+#backlog = 4096
+
+# Number of seconds to keep retrying to listen (integer value)
+#retry_until_window = 30
+
+# Enable SSL on the API server (boolean value)
+#use_ssl = false
+
+# Seconds between running periodic tasks. (integer value)
+#periodic_interval = 40
+
+# Number of separate API worker processes for service. If not specified, the
+# default is equal to the number of CPUs available for best performance.
+# (integer value)
+#api_workers = <None>
+{%- if server.api_workers is defined %}
+api_workers = {{ server.api_workers }}
+{%- endif %}
+
+# Number of RPC worker processes for service. (integer value)
+#rpc_workers = 1
+{%- if server.rpc_workers is defined %}
+rpc_workers = {{ server.rpc_workers }}
+{%- else %}
+rpc_workers = {{ grains.num_cpus }}
+{%- endif %}
+
+
+# Number of RPC worker processes dedicated to state reports queue. (integer
+# value)
+#rpc_state_report_workers = 1
+{%- if server.rpc_state_report_workers is defined %}
+rpc_state_report_workers = {{ server.rpc_state_report_workers }}
+{%- else %}
+rpc_state_report_workers = 4
+{%- endif %}
+
+# Range of seconds to randomly delay when starting the periodic task scheduler
+# to reduce stampeding. (Disable by setting to 0) (integer value)
+#periodic_fuzzy_delay = 5
+
+#
+# From neutron.agent
+#
+
+# The driver used to manage the virtual interface. (string value)
+#interface_driver = <None>
+
+# Location for Metadata Proxy UNIX domain socket. (string value)
+#metadata_proxy_socket = $state_path/metadata_proxy
+
+# User (uid or name) running metadata proxy after its initialization (if empty:
+# agent effective user). (string value)
+#metadata_proxy_user =
+
+# Group (gid or name) running metadata proxy after its initialization (if
+# empty: agent effective group). (string value)
+#metadata_proxy_group =
+
+#
+# From neutron.db
+#
+
+# Seconds to regard the agent is down; should be at least twice
+# report_interval, to be sure the agent is down for good. (integer value)
+#agent_down_time = 75
+
+# Representing the resource type whose load is being reported by the agent.
+# This can be "networks", "subnets" or "ports". When specified (Default is
+# networks), the server will extract particular load sent as part of its agent
+# configuration object from the agent report state, which is the number of
+# resources being consumed, at every report_interval.dhcp_load_type can be used
+# in combination with network_scheduler_driver =
+# neutron.scheduler.dhcp_agent_scheduler.WeightScheduler When the
+# network_scheduler_driver is WeightScheduler, dhcp_load_type can be configured
+# to represent the choice for the resource being balanced. Example:
+# dhcp_load_type=networks (string value)
+# Possible values:
+# networks - <No description provided>
+# subnets - <No description provided>
+# ports - <No description provided>
+#dhcp_load_type = networks
+
+# Agent starts with admin_state_up=False when enable_new_agents=False. In the
+# case, user's resources will not be scheduled automatically to the agent until
+# admin changes admin_state_up to True. (boolean value)
+#enable_new_agents = true
+
+# Maximum number of routes per router (integer value)
+#max_routes = 30
+
+# Define the default value of enable_snat if not provided in
+# external_gateway_info. (boolean value)
+#enable_snat_by_default = true
+
+# Driver to use for scheduling network to DHCP agent (string value)
+#network_scheduler_driver = neutron.scheduler.dhcp_agent_scheduler.WeightScheduler
+
+# Allow auto scheduling networks to DHCP agent. (boolean value)
+#network_auto_schedule = true
+
+# Automatically remove networks from offline DHCP agents. (boolean value)
+#allow_automatic_dhcp_failover = true
+
+# Number of DHCP agents scheduled to host a tenant network. If this number is
+# greater than 1, the scheduler automatically assigns multiple DHCP agents for
+# a given tenant network, providing high availability for DHCP service.
+# (integer value)
+#dhcp_agents_per_network = 1
+dhcp_agents_per_network = 2
+
+# Enable services on an agent with admin_state_up False. If this option is
+# False, when admin_state_up of an agent is turned False, services on it will
+# be disabled. Agents with admin_state_up False are not selected for automatic
+# scheduling regardless of this option. But manual scheduling to such agents is
+# available if this option is True. (boolean value)
+#enable_services_on_agents_with_admin_state_down = false
+
+# The base mac address used for unique DVR instances by Neutron. The first 3
+# octets will remain unchanged. If the 4th octet is not 00, it will also be
+# used. The others will be randomly generated. The 'dvr_base_mac' *must* be
+# different from 'base_mac' to avoid mixing them up with MAC's allocated for
+# tenant ports. A 4 octet example would be dvr_base_mac = fa:16:3f:4f:00:00.
+# The default is 3 octet (string value)
+#dvr_base_mac = fa:16:3f:00:00:00
+
+# System-wide flag to determine the type of router that tenants can create.
+# Only admin can override. (boolean value)
+#router_distributed = false
+router_distributed = {{ server.get('dvr', 'False') }}
+
+# Determine if setup is configured for DVR. If False, DVR API extension will be
+# disabled. (boolean value)
+#enable_dvr = true
+enable_dvr = {{ server.get('dvr', 'False') }}
+
+# Driver to use for scheduling router to a default L3 agent (string value)
+#router_scheduler_driver = neutron.scheduler.l3_agent_scheduler.LeastRoutersScheduler
+router_scheduler_driver = neutron.scheduler.l3_agent_scheduler.ChanceScheduler
+
+# Allow auto scheduling of routers to L3 agent. (boolean value)
+#router_auto_schedule = true
+
+# Automatically reschedule routers from offline L3 agents to online L3 agents.
+# (boolean value)
+#allow_automatic_l3agent_failover = false
+allow_automatic_l3agent_failover = true
+
+# Enable HA mode for virtual routers. (boolean value)
+#l3_ha = false
+l3_ha = {{ server.get('l3_ha', 'False') }}
+
+# Maximum number of L3 agents which a HA router will be scheduled on. If it is
+# set to 0 then the router will be scheduled on every agent. (integer value)
+#max_l3_agents_per_router = 3
+max_l3_agents_per_router = 0
+
+# Subnet used for the l3 HA admin network. (string value)
+#l3_ha_net_cidr = 169.254.192.0/18
+
+# The network type to use when creating the HA network for an HA router. By
+# default or if empty, the first 'tenant_network_types' is used. This is
+# helpful when the VRRP traffic should use a specific network which is not the
+# default one. (string value)
+#l3_ha_network_type =
+
+# The physical network name with which the HA network can be created. (string
+# value)
+#l3_ha_network_physical_name =
+
+#
+# From neutron.extensions
+#
+
+# Maximum number of allowed address pairs (integer value)
+#max_allowed_address_pair = 10
+
+{%- if server.logging is defined %}
+{%- set _data = server.logging %}
+{%- include "oslo_templates/files/queens/oslo/_log.conf" %}
+{%- endif %}
+
+
+{%- set _data = server.message_queue %}
+{%- include "oslo_templates/files/queens/oslo/messaging/_default.conf" %}
+
+{%- set _data = {} %}
+{%- include "oslo_templates/files/queens/oslo/service/_wsgi_default.conf" %}
+
+nova_url = http://{{ server.compute.host }}:8774/v2
+
+
+[agent]
+
+#
+# From neutron.agent
+#
+
+# Root helper application. Use 'sudo neutron-rootwrap
+# /etc/neutron/rootwrap.conf' to use the real root filter facility. Change to
+# 'sudo' to skip the filtering and just run the command directly. (string
+# value)
+#root_helper_daemon = <None>
+root_helper = sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf
+
+# Use the root helper when listing the namespaces on a system. This may not be
+# required depending on the security configuration. If the root helper is not
+# required, set this to False for a performance improvement. (boolean value)
+#use_helper_for_ns_read = true
+
+# Root helper daemon application to use when possible. For the agent which
+# needs to execute commands in Dom0 in the hypervisor of XenServer, this item
+# should be set to 'xenapi_root_helper', so that it will keep a XenAPI session
+# to pass commands to Dom0. (string value)
+#root_helper_daemon = <None>
+{%- if server.root_helper_daemon|default(True) %}
+root_helper_daemon = sudo neutron-rootwrap-daemon /etc/neutron/rootwrap.conf
+{%- endif %}
+
+# Seconds between nodes reporting state to server; should be less than
+# agent_down_time, best if it is half or less than agent_down_time. (floating
+# point value)
+#report_interval = 30
+report_interval = 10
+
+# Log agent heartbeats (boolean value)
+#log_agent_heartbeats = false
+
+# Add comments to iptables rules. Set to false to disallow the addition of
+# comments to generated iptables rules that describe each rule's purpose.
+# System must support the iptables comments module for addition of comments.
+# (boolean value)
+#comment_iptables_rules = true
+
+# Duplicate every iptables difference calculation to ensure the format being
+# generated matches the format of iptables-save. This option should not be
+# turned on for production systems because it imposes a performance penalty.
+# (boolean value)
+#debug_iptables_rules = false
+
+# Action to be executed when a child process dies (string value)
+# Possible values:
+# respawn - <No description provided>
+# exit - <No description provided>
+#check_child_processes_action = respawn
+
+# Interval between checks of child process liveness (seconds), use 0 to disable
+# (integer value)
+#check_child_processes_interval = 60
+
+# Availability zone of this node (string value)
+#availability_zone = nova
+
+
+[cors]
+{%- if server.cors is defined %}
+{%- set _data = server.cors %}
+{%- include "oslo_templates/files/queens/oslo/_cors.conf" %}
+{%- endif %}
+
+
+[database]
+{%- set _data = server.database %}
+{%- if _data.ssl is defined and 'cacert_file' not in _data.get('ssl', {}).keys() %}{% do _data['ssl'].update({'cacert_file': server.cacert_file}) %}{% endif %}
+{%- include "oslo_templates/files/queens/oslo/_database.conf" %}
+
+[keystone_authtoken]
+{%- set _data = server.identity %}
+{%- set auth_type = _data.get('auth_type', 'password') %}
+{%- include "oslo_templates/files/queens/keystonemiddleware/_auth_token.conf" %}
+{%- include "oslo_templates/files/queens/keystoneauth/_type_" + auth_type + ".conf" %}
+
+
+[nova]
+{%- set _data = server.get('compute', server.get('identity', {})) %}
+{%- set auth_type = _data.get('auth_type', 'password') %}
+{%- include "oslo_templates/files/queens/keystoneauth/_type_" + auth_type + ".conf" %}
+
+
+[oslo_concurrency]
+{%- set _data = server.get('concurrency', {}) %}
+{%- include "oslo_templates/files/queens/oslo/_concurrency.conf" %}
+
+
+{%- if server.message_queue is defined %}
+{%- set _data = server.message_queue %}
+{%- if _data.engine == 'rabbitmq' %}
+    {%- set messaging_engine = 'rabbit' %}
+{%- else %}
+    {%- set messaging_engine = _data.engine %}
+{%- endif %}
+[oslo_messaging_{{ messaging_engine }}]
+{%- include "oslo_templates/files/queens/oslo/messaging/_" + messaging_engine + ".conf" %}
+{%- endif %}
+
+[oslo_messaging_notifications]
+{%- set _data = server.notification %}
+{%- include "oslo_templates/files/queens/oslo/messaging/_notifications.conf" %}
+
+
+[oslo_middleware]
+{%- set _data = server %}
+{%- include "oslo_templates/files/queens/oslo/_middleware.conf" %}
+
+
+[oslo_policy]
+{%- if server.policy is defined %}
+{%- set _data = server.policy %}
+{%- include "oslo_templates/files/queens/oslo/_policy.conf" %}
+{%- endif %}
+
+
+[quotas]
+
+#
+# From neutron
+#
+
+# Default number of resource allowed per tenant. A negative value means
+# unlimited. (integer value)
+#default_quota = -1
+
+# Number of networks allowed per tenant. A negative value means unlimited.
+# (integer value)
+#quota_network = 100
+
+# Number of subnets allowed per tenant, A negative value means unlimited.
+# (integer value)
+#quota_subnet = 100
+
+# Number of ports allowed per tenant. A negative value means unlimited.
+# (integer value)
+#quota_port = 500
+
+# Default driver to use for quota checks. (string value)
+#quota_driver = neutron.db.quota.driver.DbQuotaDriver
+{% if server.backend.engine == "contrail" %}
+quota_driver = neutron_plugin_contrail.plugins.opencontrail.quota.driver.QuotaDriver
+{% endif %}
+# Keep in track in the database of current resource quota usage. Plugins which
+# do not leverage the neutron database should set this flag to False. (boolean
+# value)
+#track_quota_usage = true
+
+#
+# From neutron.extensions
+#
+
+# Number of routers allowed per tenant. A negative value means unlimited.
+# (integer value)
+#quota_router = 10
+
+# Number of floating IPs allowed per tenant. A negative value means unlimited.
+# (integer value)
+#quota_floatingip = 50
+
+# Number of security groups allowed per tenant. A negative value means
+# unlimited. (integer value)
+#quota_security_group = 10
+
+# Number of security rules allowed per tenant. A negative value means
+# unlimited. (integer value)
+#quota_security_group_rule = 100
+
+
+[ssl]
+{%- include "oslo_templates/files/queens/oslo/service/_ssl.conf" %}
