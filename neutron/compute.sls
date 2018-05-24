@@ -29,16 +29,14 @@ neutron_dhcp_agent:
 {% endif %}
 
 {%- if compute.opendaylight is defined %}
-include:
-  - .opendaylight.client
+{%- include "neutron/opendaylight/client.sls" %}
 {%- else %}
 neutron_compute_packages:
   pkg.installed:
   - names: {{ compute.pkgs }}
 
 {% if compute.get('bgp_vpn', {}).get('enabled', False) and compute.bgp_vpn.driver == "bagpipe" %}
-include:
-  - .services._bagpipe
+{%- include "neutron/services/_bagpipe.sls" %}
 {% endif %}
 
 /etc/neutron/neutron.conf:

@@ -5,11 +5,6 @@ include:
 - neutron.fwaas
 {%- endif %}
 
-{%- if gateway.l2gw is defined %}
-include:
-  - .agents.l2gw
-{%- endif %}
-
 {%- if gateway.enabled %}
 neutron_gateway_packages:
   pkg.installed:
@@ -26,13 +21,27 @@ neutron_gateway_packages:
 
 {%- endif %}
 
+{%- if gateway.l2gw is defined %}
+{%- include "neutron/agents/_l2gw.sls" %}
+{%- endif %}
 
+{%- if gateway.opendaylight is defined %}
+{%- include "neutron/opendaylight/client.sls" %}
+{%- else %}
 /etc/neutron/l3_agent.ini:
   file.managed:
   - source: salt://neutron/files/{{ gateway.version }}/l3_agent.ini
   - template: jinja
   - require:
     - pkg: neutron_gateway_packages
+
+/etc/neutron/plugins/ml2/openvswitch_agent.ini:
+  file.managed:
+  - source: salt://neutron/files/{{ gateway.version }}/openvswitch_agent.ini
+  - template: jinja
+  - require:
+    - pkg: neutron_gateway_packages
+{%- endif %}
 
 /etc/neutron/dhcp_agent.ini:
   file.managed:
@@ -44,13 +53,6 @@ neutron_gateway_packages:
 /etc/neutron/metadata_agent.ini:
   file.managed:
   - source: salt://neutron/files/{{ gateway.version }}/metadata_agent.ini
-  - template: jinja
-  - require:
-    - pkg: neutron_gateway_packages
-
-/etc/neutron/plugins/ml2/openvswitch_agent.ini:
-  file.managed:
-  - source: salt://neutron/files/{{ gateway.version }}/openvswitch_agent.ini
   - template: jinja
   - require:
     - pkg: neutron_gateway_packages
@@ -107,10 +109,12 @@ neutron_gateway_services:
   - enable: true
   - watch:
     - file: /etc/neutron/neutron.conf
-    - file: /etc/neutron/l3_agent.ini
     - file: /etc/neutron/metadata_agent.ini
-    - file: /etc/neutron/plugins/ml2/openvswitch_agent.ini
     - file: /etc/neutron/dhcp_agent.ini
+    {%- if gateway.opendaylight is not defined %}
+    - file: /etc/neutron/l3_agent.ini
+    - file: /etc/neutron/plugins/ml2/openvswitch_agent.ini
+    {%- endif %}
     {%- if fwaas.get('enabled', False) %}
     - file: /etc/neutron/fwaas_driver.ini
     {%- endif %}
@@ -131,11 +135,6 @@ rabbitmq_ca_neutron_gateway:
   file.exists:
    - name: {{ gateway.message_queue.ssl.get('cacert_file', gateway.cacert_file) }}
 {%- endif %}
-{%- endif %}
-
-{%- if gateway.opendaylight is defined %}
-include:
-  - .opendaylight.client
 {%- endif %}
 
 {%- endif %}
