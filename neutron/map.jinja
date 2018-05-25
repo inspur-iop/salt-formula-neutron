@@ -169,5 +169,8 @@
 {% set monitoring = salt['grains.filter_by']({
     'default': {
         'error_log_rate': 0.2,
+        'endpoint_failed_major_threshold': 0.5,
+        'agents_failed_minor_threshold': 0.3,
+        'agents_failed_major_threshold': 0.6,
     },
 }, grain='os_family', merge=salt['pillar.get']('neutron:monitoring')) %}
