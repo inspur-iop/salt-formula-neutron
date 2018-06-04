@@ -674,6 +674,33 @@ Compute node
             ovs:
               driver: openvswitch
 
+Neutron with additional physical networks
+-----------------------------------------
+
+Neutron Server only
+
+.. code-block:: yaml
+
+    neutron:
+      server:
+        version: ocata
+        ...
+        backend:
+          engine: ml2
+          tenant_network_types: "flat,vlan" # Can be mixed flat,vlan,vxlan
+          ...
+          # also need to configure corresponding additional bridge_mappings on
+          # compute and gateway nodes
+          physnets:
+            sriov_net:
+              mtu: 9000 # Optional, defaults to 1500
+              vlan_range: '100:200' # Optional
+            ext_net2:
+              mtu: 1500
+          mechanism:
+            ovs:
+              driver: openvswitch
+
 Advanced Neutron Features (DPDK, SR-IOV)
 ----------------------------------------
 

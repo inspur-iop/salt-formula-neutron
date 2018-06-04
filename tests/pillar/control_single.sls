@@ -16,6 +16,12 @@ neutron:
       password: password
       token: token
       tenant: admin
+      physnets:
+        sriov_net:
+          mtu: 9000 # Optional, defaults to 1500
+          vlan_range: '100:200' # Optional
+        ext_net2:
+          mtu: 1500
     fwaas: false
     dns_domain: novalocal
     tunnel_type: vxlan
