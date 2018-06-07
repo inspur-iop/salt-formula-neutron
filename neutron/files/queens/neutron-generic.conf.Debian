@@ -1,4 +1,8 @@
-{%- from "neutron/map.jinja" import fwaas, server with context %}
+{%- if pillar.neutron.gateway is defined %}
+{%- from "neutron/map.jinja" import gateway as neutron with context %}
+{%- else %}
+{%- from "neutron/map.jinja" import compute as neutron with context %}
+{%- endif %}
 [DEFAULT]
 
 #
@@ -12,13 +16,11 @@ state_path = /var/lib/neutron
 
 # The host IP to bind to. (unknown value)
 #bind_host = 0.0.0.0
-bind_host = {{ server.bind.address }}
 
 # The port to bind to (port value)
 # Minimum value: 0
 # Maximum value: 65535
 #bind_port = 9696
-bind_port = {{ server.bind.port }}
 
 # The path for API extensions. Note that this can be a colon-separated list of
 # paths. For example: api_extensions_path =
@@ -31,31 +33,11 @@ bind_port = {{ server.bind.port }}
 #auth_strategy = keystone
 auth_strategy = keystone
 
-{% if server.backend.engine == "contrail" %}
-
-api_extensions_path = extensions:/usr/lib/python2.7/dist-packages/neutron_plugin_contrail/extensions:/usr/lib/python2.7/dist-packages/neutron_lbaas/extensions
-# The core plugin Neutron will use (string value)
-core_plugin = neutron_plugin_contrail.plugins.opencontrail.contrail_plugin.NeutronPluginContrailCoreV2
-
-service_plugins = neutron_plugin_contrail.plugins.opencontrail.loadbalancer.v2.plugin.LoadBalancerPluginV2
-
-{% elif server.backend.engine in ["ml2", "ovn"] %}
+{% if neutron.backend.engine == "ml2" %}
 
 core_plugin = neutron.plugins.ml2.plugin.Ml2Plugin
 
-{% if server.backend.engine == "ml2" %}
-{% set l3_plugin = 'neutron.services.l3_router.l3_router_plugin.L3RouterPlugin' %}
-{% elif server.backend.engine == "ovn" %}
-{% set l3_plugin = 'networking_ovn.l3.l3_ovn.OVNL3RouterPlugin' %}
-{% endif %}
-
-service_plugins = {{ server.backend.get('router', l3_plugin)}},metering
-{%- if server.lbaas is defined -%},lbaasv2{%- endif -%}
-{%- if fwaas.get('enabled', False) -%},{{ fwaas[fwaas.api_version]['service_plugin'] }}{%- endif -%}
-{%- if server.get('qos', 'True') -%},neutron.services.qos.qos_plugin.QoSPlugin{%- endif -%}
-{%- if server.get('vlan_aware_vms', False) -%},trunk{%- endif -%}
-{%- if server.l2gw is defined and server.l2gw.get('enabled', False) -%},networking_l2gw.services.l2gateway.plugin.L2GatewayPlugin{%- endif -%}
-{%- if server.get('bgp_vpn', {}).get('enabled', False) -%},bgpvpn{%- endif -%}
+service_plugins = {{ neutron.backend.get('router', 'router')}}, metering
 
 {% endif %}
 
@@ -73,7 +55,7 @@ service_plugins = {{ server.backend.get('router', l3_plugin)}},metering
 # The maximum number of items returned in a single response, value was
 # 'infinite' or negative integer means no limit (string value)
 #pagination_max_limit = -1
-pagination_max_limit = {{ server.pagination_max_limit|default('-1') }}
+pagination_max_limit = {{ neutron.pagination_max_limit|default('-1') }}
 
 # Default value of availability zone hints. The availability zone aware
 # schedulers use this when the resources availability_zone_hints is empty.
@@ -104,13 +86,9 @@ dhcp_lease_duration = 600
 
 # Domain to use for building the hostnames (string value)
 #dns_domain = openstacklocal
-dns_domain = {{ server.dns_domain }}
 
 # Driver for external DNS integration. (string value)
 #external_dns_driver = <None>
-{%- if server.backend.get('extension', {}).get('dns', {}).get('enabled', False) %}
-external_dns_driver={{ server.backend.get('extension', {}).get('dns', {}).get('engine', '') }}
-{%- endif %}
 
 # Allow sending resource operation notification to DHCP agent (boolean value)
 #dhcp_agent_notification = true
@@ -159,7 +137,7 @@ notify_nova_on_port_data_changes = true
 # value. Defaults to 1500, the standard value for Ethernet. (integer value)
 # Deprecated group/name - [ml2]/segment_mtu
 #global_physnet_mtu = 1500
-global_physnet_mtu = {{ server.get('global_physnet_mtu', '1500') }}
+global_physnet_mtu = {{ neutron.get('global_physnet_mtu', '1500') }}
 
 # Number of backlog requests to configure the socket with (integer value)
 #backlog = 4096
@@ -177,14 +155,14 @@ global_physnet_mtu = {{ server.get('global_physnet_mtu', '1500') }}
 # default is equal to the number of CPUs available for best performance.
 # (integer value)
 #api_workers = <None>
-{%- if server.api_workers is defined %}
-api_workers = {{ server.api_workers }}
+{%- if neutron.api_workers is defined %}
+api_workers = {{ neutron.api_workers }}
 {%- endif %}
 
 # Number of RPC worker processes for service. (integer value)
 #rpc_workers = 1
-{%- if server.rpc_workers is defined %}
-rpc_workers = {{ server.rpc_workers }}
+{%- if neutron.rpc_workers is defined %}
+rpc_workers = {{ neutron.rpc_workers }}
 {%- else %}
 rpc_workers = {{ grains.num_cpus }}
 {%- endif %}
@@ -193,8 +171,8 @@ rpc_workers = {{ grains.num_cpus }}
 # Number of RPC worker processes dedicated to state reports queue. (integer
 # value)
 #rpc_state_report_workers = 1
-{%- if server.rpc_state_report_workers is defined %}
-rpc_state_report_workers = {{ server.rpc_state_report_workers }}
+{%- if neutron.rpc_state_report_workers is defined %}
+rpc_state_report_workers = {{ neutron.rpc_state_report_workers }}
 {%- else %}
 rpc_state_report_workers = 4
 {%- endif %}
@@ -291,12 +269,12 @@ dhcp_agents_per_network = 2
 # System-wide flag to determine the type of router that tenants can create.
 # Only admin can override. (boolean value)
 #router_distributed = false
-router_distributed = {{ server.get('dvr', 'False') }}
+router_distributed = {{ neutron.get('dvr', 'False') }}
 
 # Determine if setup is configured for DVR. If False, DVR API extension will be
 # disabled. (boolean value)
 #enable_dvr = true
-enable_dvr = {{ server.get('dvr', 'False') }}
+enable_dvr = {{ neutron.get('dvr', 'False') }}
 
 # Driver to use for scheduling router to a default L3 agent (string value)
 #router_scheduler_driver = neutron.scheduler.l3_agent_scheduler.LeastRoutersScheduler
@@ -312,7 +290,7 @@ allow_automatic_l3agent_failover = true
 
 # Enable HA mode for virtual routers. (boolean value)
 #l3_ha = false
-l3_ha = {{ server.get('l3_ha', 'False') }}
+l3_ha = {{ neutron.get('l3_ha', 'False') }}
 
 # Maximum number of L3 agents which a HA router will be scheduled on. If it is
 # set to 0 then the router will be scheduled on every agent. (integer value)
@@ -339,20 +317,17 @@ max_l3_agents_per_router = 0
 # Maximum number of allowed address pairs (integer value)
 #max_allowed_address_pair = 10
 
-{%- if server.logging is defined %}
-{%- set _data = server.logging %}
+{%- if neutron.logging is defined %}
+{%- set _data = neutron.logging %}
 {%- include "oslo_templates/files/queens/oslo/_log.conf" %}
 {%- endif %}
 
 
-{%- set _data = server.message_queue %}
+{%- set _data = neutron.message_queue %}
 {%- include "oslo_templates/files/queens/oslo/messaging/_default.conf" %}
 
 {%- set _data = {} %}
 {%- include "oslo_templates/files/queens/oslo/service/_wsgi_default.conf" %}
-
-nova_url = http://{{ server.compute.host }}:8774/v2
-
 
 [agent]
 
@@ -377,7 +352,7 @@ root_helper = sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf
 # should be set to 'xenapi_root_helper', so that it will keep a XenAPI session
 # to pass commands to Dom0. (string value)
 #root_helper_daemon = <None>
-{%- if server.root_helper_daemon|default(True) %}
+{%- if neutron.root_helper_daemon|default(True) %}
 root_helper_daemon = sudo neutron-rootwrap-daemon /etc/neutron/rootwrap.conf
 {%- endif %}
 
@@ -417,37 +392,32 @@ report_interval = 10
 
 
 [cors]
-{%- if server.cors is defined %}
-{%- set _data = server.cors %}
+{%- if neutron.cors is defined %}
+{%- set _data = neutron.cors %}
 {%- include "oslo_templates/files/queens/oslo/_cors.conf" %}
 {%- endif %}
 
 
 [database]
-{%- set _data = server.database %}
-{%- if _data.ssl is defined and 'cacert_file' not in _data.get('ssl', {}).keys() %}{% do _data['ssl'].update({'cacert_file': server.cacert_file}) %}{% endif %}
-{%- include "oslo_templates/files/queens/oslo/_database.conf" %}
+connection = sqlite:////var/lib/neutron/neutron.sqlite
 
 [keystone_authtoken]
-{%- set _data = server.identity %}
+{%- if neutron.identity is defined %}
+{%- set _data = neutron.identity %}
 {%- set auth_type = _data.get('auth_type', 'password') %}
 {%- include "oslo_templates/files/queens/keystonemiddleware/_auth_token.conf" %}
 {%- include "oslo_templates/files/queens/keystoneauth/_type_" + auth_type + ".conf" %}
-
+{%- endif %}
 
 [nova]
-{%- set _data = server.get('compute', server.get('identity', {})) %}
-{%- set auth_type = _data.get('auth_type', 'password') %}
-{%- include "oslo_templates/files/queens/keystoneauth/_type_" + auth_type + ".conf" %}
-
 
 [oslo_concurrency]
-{%- set _data = server.get('concurrency', {}) %}
+{%- set _data = neutron.get('concurrency', {}) %}
 {%- include "oslo_templates/files/queens/oslo/_concurrency.conf" %}
 
 
-{%- if server.message_queue is defined %}
-{%- set _data = server.message_queue %}
+{%- if neutron.message_queue is defined %}
+{%- set _data = neutron.message_queue %}
 {%- if _data.engine == 'rabbitmq' %}
     {%- set messaging_engine = 'rabbit' %}
 {%- else %}
@@ -458,18 +428,18 @@ report_interval = 10
 {%- endif %}
 
 [oslo_messaging_notifications]
-{%- set _data = server.notification %}
+{%- set _data = neutron.notification %}
 {%- include "oslo_templates/files/queens/oslo/messaging/_notifications.conf" %}
 
 
 [oslo_middleware]
-{%- set _data = server %}
+{%- set _data = neutron %}
 {%- include "oslo_templates/files/queens/oslo/_middleware.conf" %}
 
 
 [oslo_policy]
-{%- if server.policy is defined %}
-{%- set _data = server.policy %}
+{%- if neutron.policy is defined %}
+{%- set _data = neutron.policy %}
 {%- include "oslo_templates/files/queens/oslo/_policy.conf" %}
 {%- endif %}
 
@@ -498,7 +468,7 @@ report_interval = 10
 
 # Default driver to use for quota checks. (string value)
 #quota_driver = neutron.db.quota.driver.DbQuotaDriver
-{% if server.backend.engine == "contrail" %}
+{% if neutron.backend.engine == "contrail" %}
 quota_driver = neutron_plugin_contrail.plugins.opencontrail.quota.driver.QuotaDriver
 {% endif %}
 # Keep in track in the database of current resource quota usage. Plugins which
@@ -530,17 +500,7 @@ quota_driver = neutron_plugin_contrail.plugins.opencontrail.quota.driver.QuotaDr
 [ssl]
 {%- include "oslo_templates/files/queens/oslo/service/_ssl.conf" %}
 
-{%- if server.backend.ovsdb_connection is defined %}
+{%- if neutron.backend.ovsdb_connection is defined %}
 [ovs]
-ovsdb_connection = {{ server.backend.ovsdb_connection }}
+ovsdb_connection = {{ neutron.backend.ovsdb_connection }}
 {%- endif %}
-
-# Advanced services configs
-
-{% if server.lbaas is defined -%}
-{%- include "neutron/files/queens/lbaas.conf" %}
-{% endif %}
-
-{% if server.bgp_vpn is defined -%}
-{%- include "neutron/files/queens/bgpvpn.conf" %}
-{% endif %}
