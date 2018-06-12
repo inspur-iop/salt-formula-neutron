@@ -5,7 +5,7 @@
 {%- raw %}
 server:
   alert:
-    NeutronAPIOutage:
+    NeutronApiOutage:
       if: >-
         openstack_api_check_status{name="neutron"} == 0
       labels:
@@ -15,7 +15,7 @@ server:
         summary: "Neutron API outage"
         description: >-
           Neutron API is not accessible for the Neutron endpoint in the OpenStack service catalog.
-    NeutronAPIServiceDown:
+    NeutronApiEndpointDown:
       if: >-
         http_response_status{name="neutron-api"} == 0
       for: 2m
@@ -23,11 +23,11 @@ server:
         severity: minor
         service: neutron
       annotations:
-        summary: "Host neutron-api endpoint is not accessible"
+        summary: "neutron-api endpoint is not accessible"
         description: >-
-          The host neutron-api endpoint on the {{ $labels.host }} node is not accessible for at least 2 minutes.
+          The neutron-api endpoint on the {{ $labels.host }} node is not accessible for 2 minutes.
 {%- endraw %}
-    NeutronAPIServiceDownMajor:
+    NeutronApiEndpointsDownMajor:
       if: >-
         count(http_response_status{name="neutron-api"} == 0) >= count(http_response_status{name="neutron-api"}) * {{ major_threshold }}
       for: 2m
@@ -35,10 +35,10 @@ server:
         severity: major
         service: neutron
       annotations:
-        summary: "{{major_threshold * 100}}% of host neutron-api endpoints are not accessible"
+        summary: "{{major_threshold * 100}}% of neutron-api endpoints are not accessible"
         description: >-
-          {% raw %}{{ $value }} host neutron-api endpoints are not accessible for at least 2 minutes (at least {% endraw %}{{major_threshold * 100}}{% raw %}%).
-    NeutronAPIServiceOutage:
+          {% raw %}{{ $value }} neutron-api endpoints (>= {% endraw %} {{major_threshold * 100}}{% raw %}%) are not accessible for 2 minutes.
+    NeutronApiEndpointsOutage:
       if: >-
         count(http_response_status{name="neutron-api"} == 0) == count(http_response_status{name="neutron-api"})
       for: 2m
@@ -46,9 +46,9 @@ server:
         severity: critical
         service: neutron
       annotations:
-        summary: "Host neutron-api outage"
+        summary: "neutron-api endpoints outage"
         description: >-
-          All available host neutron-api endpoints are not accessible for at least 2 minutes.
+          All available neutron-api endpoints are not accessible for 2 minutes.
 {%- endraw %}
 {%- if server.get('backend', {}).engine is defined and server.backend.engine == "ml2" %}
 {%- set minor_threshold = monitoring.agents_failed_minor_threshold|float %}
@@ -74,7 +74,7 @@ server:
       annotations:
         summary: "{{minor_threshold * 100}}%{% raw %} of {{ $labels.binary }} agents are down"
         description: >-
-          {{ $value }} {{ $labels.binary }} agents are down {% endraw %}(at least {{minor_threshold * 100}}%).
+          {{ $value }} {{ $labels.binary }} agents (>= {% endraw %} {{minor_threshold * 100}}%) are down.
     NeutronAgentsDownMajor:
       if: >-
         count(openstack_neutron_agent_state == 0) by (binary) >= on (binary) count(openstack_neutron_agent_state) by (binary) * {{major_threshold}}
@@ -84,16 +84,16 @@ server:
       annotations:
         summary: "{{major_threshold * 100}}%{% raw %} of {{ $labels.binary }} agents are down"
         description: >-
-          {{ $value }} {{ $labels.binary }} agents are down {% endraw %}(at least {{major_threshold * 100}}%).
+          {{ $value }} {{ $labels.binary }} agents (>= {% endraw %} {{major_threshold * 100}}%) are down.
 {%- raw %}
-    NeutronAgentOutage:
+    NeutronAgentsOutage:
       if: >-
         count(openstack_neutron_agent_state == 0) by (binary) == on (binary) count(openstack_neutron_agent_state) by (binary)
       labels:
         severity: critical
         service: neutron
       annotations:
-        summary: "{{ $labels.binary }} agent outage"
+        summary: "{{ $labels.binary }} agents outage"
         description: >-
           All {{ $labels.binary }} agents are down.
 {%- endraw %}
