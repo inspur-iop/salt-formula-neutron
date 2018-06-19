@@ -829,6 +829,9 @@ Control node:
             ovn:
               driver: ovn
           tenant_network_types: "geneve,flat"
+          ovn:
+            ovn_l3_scheduler: leastloaded # valid options: chance, leastloaded
+            neutron_sync_mode: repair # valid options: log, off, repair
         ovn_ctl_opts:
           db-nb-create-insecure-remote: 'yes'
           db-sb-create-insecure-remote: 'yes'
