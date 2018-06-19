@@ -27,6 +27,7 @@ Neutron Server on the controller node
         rpc_workers: 2
         rpc_state_report_workers: 2
         root_helper_daemon: false
+        dhcp_lease_duration: 600
         bind:
           address: 172.20.0.1
           port: 9696
@@ -207,6 +208,7 @@ Network Node
       gateway:
         enabled: True
         version: mitaka
+        dhcp_lease_duration: 600
         message_queue:
           engine: rabbitmq
           host: 127.0.0.1

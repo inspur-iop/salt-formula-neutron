@@ -112,7 +112,7 @@ pagination_max_limit = {{ server.pagination_max_limit|default('-1') }}
 # DHCP lease duration (in seconds). Use -1 to tell dnsmasq to use infinite
 # lease times. (integer value)
 #dhcp_lease_duration = 86400
-dhcp_lease_duration = 600
+dhcp_lease_duration = {{ server.dhcp_lease_duration|default('600') }}
 
 # Domain to use for building the hostnames (string value)
 #dns_domain = openstacklocal
