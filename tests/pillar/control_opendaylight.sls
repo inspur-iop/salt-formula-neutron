@@ -59,6 +59,7 @@ neutron:
       mechanism:
         ovs:
           driver: opendaylight
+          order: 77
 linux:
   system:
     enabled: true

@@ -747,6 +747,10 @@ Neutron OVS SR-IOV
               driver: openvswitch
             sriov:
               driver: sriovnicswitch
+              # Driver w/ highest number will be placed ahead in the list (default is 0).
+              # It's recommended for SR-IOV driver to set an order >0 to get it
+              # before (for example) the opendaylight one.
+              order: 9
 
     neutron:
       compute:
@@ -911,6 +915,7 @@ Control node:
         mechanism:
           ovs:
             driver: opendaylight_v2
+            order: 1
 
 Network/Gateway node:
 
