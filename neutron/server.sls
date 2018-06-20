@@ -190,7 +190,7 @@ neutron_server_fluentd_logger_package:
 {%- for name, rule in server.get('policy', {}).iteritems() %}
 
 {%- if rule != None %}
-rule_{{ name }}_present:
+neutron_keystone_rule_{{ name }}_present:
   keystone_policy.rule_present:
   - path: /etc/neutron/policy.json
   - name: {{ name }}
@@ -200,7 +200,7 @@ rule_{{ name }}_present:
 
 {%- else %}
 
-rule_{{ name }}_absent:
+neutron_keystone_rule_{{ name }}_absent:
   keystone_policy.rule_absent:
   - path: /etc/neutron/policy.json
   - name: {{ name }}
