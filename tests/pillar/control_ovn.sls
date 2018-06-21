@@ -12,6 +12,9 @@ neutron:
         ovn:
           driver: ovn
       tenant_network_types: "geneve,flat"
+      ovn:
+        ovn_l3_scheduler: chance
+        neutron_sync_mode: off
     controller_vip: 172.16.10.101
     dvr: false
     l3_ha: false

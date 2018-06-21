@@ -229,6 +229,8 @@ rule_{{ name }}_absent:
 ovn_packages:
   pkg.installed:
   - names: {{ server.pkgs_ovn }}
+  - require_in:
+    - cmd: neutron_db_manage
 
 {%- if not grains.get('noservices', False) %}
 
@@ -259,7 +261,7 @@ ovn_services:
 {%- if grains.os_family == 'Debian' %}
 /etc/default/ovn-central:
   file.managed:
-  - source: salt://neutron/files/{{ server.version }}/ovn_central_options
+  - source: salt://neutron/files/ovn_central_options
   - template: jinja
   - require:
     - pkg: ovn_packages
