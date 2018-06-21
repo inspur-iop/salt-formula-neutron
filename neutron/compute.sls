@@ -88,6 +88,21 @@ include:
 - neutron.fwaas
 {%- endif %}
 
+{%- if not grains.get('noservices', False) %}
+# NOTE(mpolenchuk): haproxy is used as a replacement for
+# neutron-ns-metadata-proxy Python implementation starting from Pike
+haproxy:
+  {%- if grains['saltversioninfo'] < [2017,7] %}
+  module.run:
+  - name: service.mask
+  - m_name: haproxy
+  {%- else %}
+  service.masked:
+  {%- endif %}
+  - prereq:
+    - pkg: neutron_dvr_packages
+{%- endif %}
+
 neutron_dvr_packages:
   pkg.installed:
   - names:
