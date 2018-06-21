@@ -1,6 +1,7 @@
 neutron:
   compute:
     agent_mode: legacy
+    firewall_driver: noop
     backend:
       engine: ml2
       tenant_network_types: "flat,vxlan"
