@@ -28,6 +28,7 @@ Neutron Server on the controller node
         rpc_state_report_workers: 2
         root_helper_daemon: false
         dhcp_lease_duration: 600
+        firewall_driver: iptables_hybrid
         bind:
           address: 172.20.0.1
           port: 9696
@@ -209,6 +210,7 @@ Network Node
         enabled: True
         version: mitaka
         dhcp_lease_duration: 600
+        firewall_driver: iptables_hybrid
         message_queue:
           engine: rabbitmq
           host: 127.0.0.1

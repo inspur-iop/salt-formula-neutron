@@ -4,6 +4,7 @@ neutron:
     rpc_workers: 2
     rpc_state_report_workers: 2
     enabled: true
+    firewall_driver: noop
     backend:
       external_mtu: 1500
       tenant_net_mtu: 9000
