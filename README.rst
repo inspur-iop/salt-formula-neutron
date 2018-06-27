@@ -794,13 +794,13 @@ Neutron with BGP VPN (BaGPipe driver)
         version: pike
         bgp_vpn:
           enabled: true
-          driver: bagpipe # Options: bagpipe/opencontrail/opendaylight
+          driver: bagpipe # Options: bagpipe/opencontrail/opendaylight[_v2]
       ....
       compute:
         version: pike
         bgp_vpn:
           enabled: true
-          driver: bagpipe # Options: bagpipe/opencontrail/opendaylight
+          driver: bagpipe # Options: bagpipe/opencontrail/opendaylight[_v2]
           bagpipe:
             local_address: 192.168.20.20 # IP address for mpls/gre tunnels
             peers: 192.168.20.30 # IP addresses of BGP peers
