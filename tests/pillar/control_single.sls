@@ -18,6 +18,8 @@ neutron:
       token: token
       tenant: admin
       physnets:
+        external:
+          mtu: 1500
         sriov_net:
           mtu: 9000 # Optional, defaults to 1500
           vlan_range: '100:200' # Optional

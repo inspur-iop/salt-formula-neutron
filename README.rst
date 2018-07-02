@@ -678,8 +678,8 @@ Compute node
             ovs:
               driver: openvswitch
 
-Neutron with additional physical networks
------------------------------------------
+Neutron with explicit physical networks
+---------------------------------------
 
 Neutron Server only
 
@@ -693,9 +693,11 @@ Neutron Server only
           engine: ml2
           tenant_network_types: "flat,vlan" # Can be mixed flat,vlan,vxlan
           ...
-          # also need to configure corresponding additional bridge_mappings on
+          # also need to configure corresponding bridge_mappings on
           # compute and gateway nodes
-          physnets:
+          physnets: # only listed physnets will be configured (overrides physnet1/2/3)
+            external:
+              mtu: 1500
             sriov_net:
               mtu: 9000 # Optional, defaults to 1500
               vlan_range: '100:200' # Optional
