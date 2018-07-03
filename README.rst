@@ -695,14 +695,22 @@ Neutron Server only
           ...
           # also need to configure corresponding bridge_mappings on
           # compute and gateway nodes
+          flat_networks_default: '*' # '*' to allow arbitrary names or '' to disable
           physnets: # only listed physnets will be configured (overrides physnet1/2/3)
             external:
               mtu: 1500
+              types:
+                - flat # possible values - 'flat' or 'vlan'
             sriov_net:
               mtu: 9000 # Optional, defaults to 1500
               vlan_range: '100:200' # Optional
+              types:
+                - vlan
             ext_net2:
               mtu: 1500
+              types:
+                - flat
+                - vlan
           mechanism:
             ovs:
               driver: openvswitch
