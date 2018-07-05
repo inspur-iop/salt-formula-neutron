@@ -17,14 +17,22 @@ neutron:
       password: password
       token: token
       tenant: admin
+      flat_networks_default: '*' # any allowed, default
       physnets:
         external:
           mtu: 1500
+          types:
+            - flat
         sriov_net:
           mtu: 9000 # Optional, defaults to 1500
           vlan_range: '100:200' # Optional
+          types:
+            - vlan
         ext_net2:
           mtu: 1500
+          types:
+            - flat
+            - vlan
     fwaas: false
     dns_domain: novalocal
     tunnel_type: vxlan
