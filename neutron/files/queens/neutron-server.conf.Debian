@@ -438,6 +438,8 @@ report_interval = 10
 
 [nova]
 {%- set _data = server.get('compute', server.get('identity', {})) %}
+{%- if 'protocol' not in _data.keys() %}{% do _data.update({'protocol': server.get('identity', {}).get('protocol', 'http')}) %}{% endif %}
+{%- if 'cacert_file' not in _data.keys() %}{% do _data.update({'cacert_file': server.cacert_file}) %}{% endif %}
 {%- set auth_type = _data.get('auth_type', 'password') %}
 {%- include "oslo_templates/files/queens/keystoneauth/_type_" + auth_type + ".conf" %}
 
