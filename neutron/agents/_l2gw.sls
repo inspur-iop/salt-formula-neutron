@@ -14,6 +14,7 @@ l2gw_agent_packages:
 
 {%- if not grains.get('noservices', False) %}
 
+{%- if grains.init == 'systemd' %}
 {%- if grains['saltversioninfo'] < [2017, 7] %}
 service.mask:
   module.run:
@@ -25,6 +26,7 @@ l2gw_agent__service_mask:
 {%- endif %}
   - require_in:
     - pkg: l2gw_agent_packages
+{%- endif %}
 
 neutron-l2gateway-agent:
   service.running:

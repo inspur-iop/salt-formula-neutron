@@ -10,18 +10,13 @@ neutron_gateway_packages:
   pkg.installed:
   - names: {{ gateway.pkgs }}
 
-{%- if not grains.get('noservices', False) %}
+{%- if not grains.get('noservices', False) and pillar.haproxy is not defined %}
 # NOTE(mpolenchuk): haproxy is used as a replacement for
 # neutron-ns-metadata-proxy Python implementation starting from Pike
 haproxy:
-  {%- if grains['saltversioninfo'] < [2017,7] %}
-  module.run:
-  - name: service.mask
-  - m_name: haproxy
-  {%- else %}
-  service.masked:
-  {%- endif %}
-  - prereq:
+  service.dead:
+  - enable: False
+  - require:
     - pkg: neutron_gateway_packages
 {%- endif %}
 
