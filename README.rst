@@ -211,6 +211,7 @@ Network Node
         version: mitaka
         dhcp_lease_duration: 600
         firewall_driver: iptables_hybrid
+        ovs_use_veth: False
         message_queue:
           engine: rabbitmq
           host: 127.0.0.1
