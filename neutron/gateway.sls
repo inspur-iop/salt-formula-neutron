@@ -94,14 +94,14 @@ neutron_gateway_fluentd_logger_package:
 {{ service_name }}_logging_conf:
   file.managed:
     - name: /etc/neutron/logging/logging-{{ service_name }}.conf
-    - source: salt://neutron/files/logging.conf
+    - source: salt://oslo_templates/files/logging/_logging.conf
     - template: jinja
     - makedirs: true
     - user: neutron
     - group: neutron
     - defaults:
         service_name: {{ service_name }}
-        values: {{ gateway }}
+        _data: {{ gateway.logging }}
     - require:
       - pkg: neutron_gateway_packages
 {%- if gateway.logging.log_handlers.get('fluentd', {}).get('enabled', False) %}

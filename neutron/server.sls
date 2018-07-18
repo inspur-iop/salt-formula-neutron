@@ -168,12 +168,12 @@ neutron_server_fluentd_logger_package:
 {{ service_name }}_logging_conf:
   file.managed:
     - name: /etc/neutron/logging/logging-{{ service_name }}.conf
-    - source: salt://neutron/files/logging.conf
+    - source: salt://oslo_templates/files/logging/_logging.conf
     - template: jinja
     - makedirs: True
     - defaults:
         service_name: {{ service_name }}
-        values: {{ server }}
+        _data: {{ server.logging }}
     - user: neutron
     - group: neutron
     - require:
