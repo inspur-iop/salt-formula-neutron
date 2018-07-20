@@ -922,6 +922,7 @@ Control node:
         user: admin
         password: admin
         ovsdb_connection: tcp:127.0.0.1:6639
+        ovsdb_interface: native
         enable_websocket: true
         enable_dhcp_service: false
         mechanism:
@@ -938,6 +939,7 @@ Network/Gateway node:
       backend:
         router: odl-router_v2
         ovsdb_connection: tcp:127.0.0.1:6639
+        ovsdb_interface: native
       opendaylight:
         ovsdb_server_iface: ptcp:6639:127.0.0.1
         ovsdb_odl_iface: tcp:10.20.0.77:6640

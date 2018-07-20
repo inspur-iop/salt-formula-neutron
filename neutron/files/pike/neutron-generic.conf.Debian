@@ -2096,7 +2096,10 @@ heartbeat_rate = 2
 # cipher list format. (string value)
 #ciphers = <None>
 
-{%- if neutron.backend.ovsdb_connection is defined %}
 [ovs]
+{%- if neutron.backend.ovsdb_interface is defined %}
+ovsdb_interface = {{ neutron.backend.ovsdb_interface }}
+{%- endif %}
+{%- if neutron.backend.ovsdb_connection is defined %}
 ovsdb_connection = {{ neutron.backend.ovsdb_connection }}
 {%- endif %}

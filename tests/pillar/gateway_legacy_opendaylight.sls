@@ -6,6 +6,7 @@ neutron:
       tenant_network_types: "flat,vxlan"
       router: odl-router
       ovsdb_connection: tcp:127.0.0.1:6639
+      ovsdb_interface: native
       mechanism:
         ovs:
           driver: opendaylight

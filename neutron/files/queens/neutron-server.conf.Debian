@@ -533,8 +533,11 @@ quota_driver = neutron_plugin_contrail.plugins.opencontrail.quota.driver.QuotaDr
 [ssl]
 {%- include "oslo_templates/files/queens/oslo/service/_ssl.conf" %}
 
-{%- if server.backend.ovsdb_connection is defined %}
 [ovs]
+{%- if server.backend.ovsdb_interface is defined %}
+ovsdb_interface = {{ server.backend.ovsdb_interface }}
+{%- endif %}
+{%- if server.backend.ovsdb_connection is defined %}
 ovsdb_connection = {{ server.backend.ovsdb_connection }}
 {%- endif %}
 

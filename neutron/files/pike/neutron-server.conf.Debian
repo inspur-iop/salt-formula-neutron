@@ -2277,7 +2277,10 @@ password = {{ server.identity.password }}
 auth_url=http://{{ server.identity.host }}:35357
 {%- endif %}
 
-{%- if server.backend.ovsdb_connection is defined %}
 [ovs]
+{%- if server.backend.ovsdb_interface is defined %}
+ovsdb_interface = {{ server.backend.ovsdb_interface }}
+{%- endif %}
+{%- if server.backend.ovsdb_connection is defined %}
 ovsdb_connection = {{ server.backend.ovsdb_connection }}
 {%- endif %}
