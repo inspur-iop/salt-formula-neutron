@@ -3,6 +3,7 @@ neutron:
     agent_mode: legacy
     dhcp_lease_duration: 86400
     firewall_driver: noop
+    ovs_use_veth: True
     backend:
       engine: ml2
       tenant_network_types: "flat,vxlan"
