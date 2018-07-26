@@ -31,6 +31,19 @@ bind_port = {{ server.bind.port }}
 #auth_strategy = keystone
 auth_strategy = keystone
 
+{%- if server.core_plugin is defined %}
+core_plugin = {{ server.core_plugin }}
+{%- if server.service_plugins is defined %}
+{%- set service_plugins = [] %}
+{%- for sname,service in server.service_plugins.iteritems() %}
+{%- if service.enabled%}
+{%- do service_plugins.append(sname)%}
+{%- endif %}
+{%- endfor %}
+service_plugins = {{ ','.join(service_plugins) }}
+{%- endif %}
+{%- else %}
+
 {% if server.backend.engine == "contrail" %}
 
 api_extensions_path = extensions:/usr/lib/python2.7/dist-packages/neutron_plugin_contrail/extensions:/usr/lib/python2.7/dist-packages/neutron_lbaas/extensions
@@ -58,6 +71,7 @@ service_plugins = {{ server.backend.get('router', l3_plugin)}},metering
 {%- if server.get('bgp_vpn', {}).get('enabled', False) -%},bgpvpn{%- endif -%}
 
 {% endif %}
+{%- endif %}
 
 # The service plugins Neutron will use (list value)
 #service_plugins =

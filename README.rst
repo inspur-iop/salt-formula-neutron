@@ -991,6 +991,29 @@ Neutron Server with Midonet
           user: admin
           password: password
 
+Neutron Server with NSX
+
+.. code-block:: yaml
+
+    neutron:
+      server:
+        backend:
+          engine: vmware
+        core_plugin: vmware_nsxv3
+        vmware:
+          nsx:
+            extension_drivers:
+              - vmware_nsxv3_dns
+            v3:
+              api_password: nsx_password
+              api_user: nsx_username
+              api_managers:
+                01:
+                  scheme: https
+                  host: 192.168.10.120
+                  port: '443'
+              insecure: true
+
 Neutron Keystone region
 
 .. code-block:: yaml

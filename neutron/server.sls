@@ -327,6 +327,37 @@ neutron_db_manage:
 {%- endif %}
 {%- endif %}
 
+{% if server.backend.engine == "vmware" %}
+
+vmware_neutron_packages:
+  pkg.installed:
+  - names:
+    - python-vmware-nsx
+
+/etc/neutron/plugins/vmware/nsx.ini:
+  file.managed:
+    - source: salt://neutron/files/{{ server.version }}/plugins/nsx.ini
+    - user: root
+    - group: root
+    - mode: 644
+    - makedirs: true
+    - dir_mode: 755
+    - template: jinja
+    - require:
+      - pkg: vmware_neutron_packages
+
+neutron_db_manage:
+  cmd.run:
+  - name: neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugins/vmware/nsx.ini upgrade head
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
+  - require:
+    - file: /etc/neutron/neutron.conf
+    - file: /etc/neutron/plugins/vmware/nsx.ini
+
+{%- endif %}
+
 {% if server.get('bgp_vpn', {}).get('enabled', False) %}
 
 bgpvpn_packages:

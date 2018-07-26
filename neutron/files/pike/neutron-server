@@ -15,6 +15,10 @@ NEUTRON_PLUGIN_CONFIG="/etc/neutron/plugins/ml2/ml2_conf.ini"
 NEUTRON_PLUGIN_CONFIG="/etc/neutron/plugins/opencontrail/ContrailPlugin.ini"
 {%- endif %}
 
+{%- if server.backend.engine == "vmware" %}
+NEUTRON_PLUGIN_CONFIG="/etc/neutron/plugins/vmware/nsx.ini"
+{%- endif %}
+
 {%- if server.logging.log_appender %}
 DAEMON_ARGS="${DAEMON_ARGS} --log-config-append=/etc/neutron/logging/logging-neutron-server.conf"
 {%- endif %}
