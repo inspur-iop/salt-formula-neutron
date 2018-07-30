@@ -1,13 +1,13 @@
-===============
-Neutron Formula
-===============
+=====
+Usage
+=====
 
-Neutron is an OpenStack project to provide "networking as a service" between
+Neutron is an OpenStack project to provide *networking as a service* between
 interface devices (e.g., vNICs) managed by other Openstack services (e.g.,
 nova).
 
-Starting in the Folsom release, Neutron is a core and supported part of the
-OpenStack platform (for Essex, we were an "incubated" project, which means use
+Starting with the Folsom release, Neutron is a core and supported part of the
+OpenStack platform (for Essex, we were an *incubated* project, which means use
 is suggested only for those who really know what they're doing with Neutron).
 
 Sample Pillars
@@ -62,12 +62,11 @@ Neutron Server on the controller node
         audit:
           enabled: false
 
-Note: The pagination is useful to retrieve a large bunch of resources,
-because a single request may fail (timeout). This is enabled with both
-parameters *allow_pagination* and *pagination_max_limit* as shown above.
+.. note:: The pagination is useful to retrieve a large bunch of resources,
+   because a single request may fail (timeout). This is enabled with both
+   parameters *allow_pagination* and *pagination_max_limit* as shown above.
 
-
-Configuration of policy.json file
+Configuration of policy.json file:
 
 .. code-block:: yaml
 
@@ -105,16 +104,16 @@ Neutron LBaaSv2 enablement
             engine: avinetworks
             ...
 
-Note: If the Contrail backend is set, Opencontrail loadbalancer would be enabled
-automatically. In this case lbaas should disabled in pillar:
+.. note:: If the Contrail backend is set, Opencontrail loadbalancer
+   would be enabled automatically. In this case lbaas should disabled
+   in pillar:
 
-.. code-block:: yaml
+   .. code-block:: yaml
 
-  neutron:
-    server:
-      lbaas:
-        enabled: false
-
+    neutron:
+      server:
+        lbaas:
+          enabled: false
 
 Neutron FWaaSv1 enablement
 --------------------------
@@ -143,7 +142,6 @@ Enable CORS parameters
           allow_credentials: True
           max_age: 86400
 
-
 Neutron VXLAN tenant networks with Network nodes
 ------------------------------------------------
 
@@ -157,7 +155,7 @@ routed to via the network nodes.
 The intention is that each tenant will require at least two (2) vrouters
 one to be utilised
 
-Neutron Server
+Neutron Server:
 
 .. code-block:: yaml
 
@@ -201,7 +199,7 @@ Neutron Server
             ovs:
               driver: openvswitch
 
-Network Node
+Network Node:
 
 .. code-block:: yaml
 
@@ -234,7 +232,7 @@ Network Node
           dhcp:
             ovs_use_veth: False
 
-Compute Node
+Compute Node:
 
 .. code-block:: yaml
 
@@ -332,7 +330,7 @@ compute nodes:
 Specify different mtu values for different physnets
 ---------------------------------------------------
 
-Neutron Server
+Neutron Server:
 
 .. code-block:: yaml
 
@@ -350,7 +348,7 @@ Neutron VXLAN tenant networks with Network Nodes (non DVR)
 This section describes a network solution that utilises VxLAN overlay
  networks without DVR with all routers being managed on the network nodes.
 
-Neutron Server
+Neutron Server:
 
 .. code-block:: yaml
 
@@ -393,7 +391,7 @@ Neutron Server
             ovs:
               driver: openvswitch
 
-Network Node
+Network Node:
 
 .. code-block:: yaml
 
@@ -422,7 +420,7 @@ Network Node
             ovs:
               driver: openvswitch
 
-Compute Node
+Compute Node:
 
 .. code-block:: yaml
 
@@ -450,13 +448,14 @@ Compute Node
 Neutron VXLAN tenant networks with Network Nodes with DVR
 ---------------------------------------------------------
 
-With DVR for East-West and North-South, DVR everywhere, Network node for SNAT.
+With DVR for East-West and North-South, DVR everywhere, Network
+node for SNAT.
 
 This section describes a network solution that utilises VxLAN
 overlay networks with DVR with North-South and East-West. Network
 Node is used only for SNAT.
 
-Neutron Server
+Neutron Server:
 
 .. code-block:: yaml
 
@@ -499,7 +498,7 @@ Neutron Server
             ovs:
               driver: openvswitch
 
-Network Node
+Network Node:
 
 .. code-block:: yaml
 
@@ -528,7 +527,7 @@ Network Node
             ovs:
               driver: openvswitch
 
-Compute Node
+Compute Node:
 
 .. code-block:: yaml
 
@@ -558,7 +557,7 @@ Compute Node
             ovs:
               driver: openvswitch
 
-Sample Linux network configuration for DVR
+Sample Linux network configuration for DVR:
 
 .. code-block:: yaml
 
@@ -624,10 +623,11 @@ Sample Linux network configuration for DVR
 Additonal VXLAN tenant network settings
 ---------------------------------------
 
-The default multicast group of 224.0.0.1 only multicasts to a single subnet.
-Allow overriding it to allow larger underlay network topologies.
+The default multicast group of ``224.0.0.1`` only multicasts
+to a single subnet. Allow overriding it to allow larger underlay
+network topologies.
 
-Neutron Server
+Neutron Server:
 
 .. code-block:: yaml
 
@@ -642,7 +642,7 @@ Neutron VLAN tenant networks with Network Nodes
 
 VLAN tenant provider
 
-Neutron Server only
+Neutron Server only:
 
 .. code-block:: yaml
 
@@ -663,7 +663,7 @@ Neutron Server only
             ovs:
               driver: openvswitch
 
-Compute node
+Compute node:
 
 .. code-block:: yaml
 
@@ -684,7 +684,7 @@ Compute node
 Neutron with explicit physical networks
 ---------------------------------------
 
-Neutron Server only
+Neutron Server only:
 
 .. code-block:: yaml
 
@@ -723,7 +723,7 @@ Advanced Neutron Features (DPDK, SR-IOV)
 
 Neutron OVS DPDK
 
-Enable datapath netdev for neutron openvswitch agent
+Enable datapath netdev for neutron openvswitch agent:
 
 .. code-block:: yaml
 
@@ -747,7 +747,7 @@ Enable datapath netdev for neutron openvswitch agent
             ovs:
               driver: openvswitch
 
-Neutron OVS SR-IOV
+Neutron OVS SR-IOV:
 
 .. code-block:: yaml
 
@@ -798,7 +798,7 @@ Neutron with VLAN-aware-VMs
         vlan_aware_vms: true
 
 Neutron with BGP VPN (BaGPipe driver)
----------------------------
+-------------------------------------
 
 .. code-block:: yaml
 
@@ -868,7 +868,6 @@ Compute node:
         external_access: false
         backend:
           engine: ovn
-
 
 Neutron L2 Gateway
 ----------------
@@ -965,7 +964,7 @@ Compute node:
 Neutron Server
 --------------
 
-Neutron Server with OpenContrail
+Neutron Server with OpenContrail:
 
 .. code-block:: yaml
 
@@ -980,7 +979,7 @@ Neutron Server with OpenContrail
           tenant: admin
           token: token
 
-Neutron Server with Midonet
+Neutron Server with Midonet:
 
 .. code-block:: yaml
 
@@ -993,7 +992,7 @@ Neutron Server with Midonet
           user: admin
           password: password
 
-Neutron Server with NSX
+Neutron Server with NSX:
 
 .. code-block:: yaml
 
@@ -1016,7 +1015,7 @@ Neutron Server with NSX
                   port: '443'
               insecure: true
 
-Neutron Keystone region
+Neutron Keystone region:
 
 .. code-block:: yaml
 
@@ -1032,7 +1031,7 @@ Neutron Keystone region
           region: RegionTwo
         ...
 
-Client-side RabbitMQ HA setup
+Client-side RabbitMQ HA setup:
 
 .. code-block:: yaml
 
@@ -1050,54 +1049,49 @@ Client-side RabbitMQ HA setup
           virtual_host: '/openstack'
         ....
 
-
 Configuring TLS communications
 ------------------------------
 
-
-**Note:** by default system wide installed CA certs are used, so ``cacert_file`` param is optional, as well as ``cacert``.
-
+.. note:: By default, system-wide installed CA certs are used,
+   so ``cacert_file`` param is optional, as well as ``cacert``.
 
 - **RabbitMQ TLS**
 
-.. code-block:: yaml
+  .. code-block:: yaml
 
- neutron:
-   server, gateway, compute:
-      message_queue:
-        port: 5671
-        ssl:
-          enabled: True
-          (optional) cacert: cert body if the cacert_file does not exists
-          (optional) cacert_file: /etc/openstack/rabbitmq-ca.pem
-          (optional) version: TLSv1_2
-
+   neutron:
+     server, gateway, compute:
+        message_queue:
+          port: 5671
+          ssl:
+            enabled: True
+            (optional) cacert: cert body if the cacert_file does not exists
+            (optional) cacert_file: /etc/openstack/rabbitmq-ca.pem
+            (optional) version: TLSv1_2
 
 - **MySQL TLS**
 
-.. code-block:: yaml
+  .. code-block:: yaml
 
- neutron:
-   server:
-      database:
-        ssl:
-          enabled: True
-          (optional) cacert: cert body if the cacert_file does not exists
-          (optional) cacert_file: /etc/openstack/mysql-ca.pem
+     neutron:
+       server:
+          database:
+            ssl:
+              enabled: True
+              (optional) cacert: cert body if the cacert_file does not exists
+              (optional) cacert_file: /etc/openstack/mysql-ca.pem
 
 - **Openstack HTTPS API**
 
+  .. code-block:: yaml
 
-.. code-block:: yaml
+     neutron:
+       server:
+          identity:
+             protocol: https
+             (optional) cacert_file: /etc/openstack/proxy.pem
 
- neutron:
-   server:
-      identity:
-         protocol: https
-         (optional) cacert_file: /etc/openstack/proxy.pem
-
-
-Enable auditing filter, ie: CADF
+Enable auditing filter, ie: CADF:
 
 .. code-block:: yaml
 
@@ -1117,7 +1111,7 @@ Enable auditing filter, ie: CADF
           map_file: '/etc/pycadf/neutron_api_audit_map.conf'
       ....
 
-Neutron with security groups disabled
+Neutron with security groups disabled:
 
 .. code-block:: yaml
 
@@ -1135,7 +1129,7 @@ Neutron with security groups disabled
 Neutron Client
 --------------
 
-Neutron networks
+Neutron networks:
 
 .. code-block:: yaml
 
@@ -1174,7 +1168,7 @@ Neutron networks
             network:
               ...
 
-Neutron routers
+Neutron routers:
 
 .. code-block:: yaml
 
@@ -1196,10 +1190,9 @@ Neutron routers
             router:
               ...
 
-    TODO: implement adding new interfaces to a router while updating it
+.. TODO implement adding new interfaces to a router while updating it
 
-
-Neutron security groups
+Neutron security groups:
 
 .. code-block:: yaml
 
@@ -1233,10 +1226,10 @@ Neutron security groups
             security_group:
               ...
 
-    TODO: implement updating existing security rules (now it adds new rule if trying to update existing one)
+.. TODO: implement updating existing security rules (now it adds new rule if
+   trying to update existing one)
 
-
-Floating IP addresses
+Floating IP addresses:
 
 .. code-block:: yaml
 
@@ -1256,12 +1249,12 @@ Floating IP addresses
                 ...
 
 .. note:: The network must have flag router:external set to True.
-          Instance port in the stated subnet will be associated with the dynamically generated floating IP.
-
-
+          Instance port in the stated subnet will be associated
+          with the dynamically generated floating IP.
 
 Enable Neutron extensions (QoS, DNS, etc.)
 ------------------------------------------
+
 .. code-block:: yaml
 
     neutron:
@@ -1279,6 +1272,7 @@ Enable Neutron extensions (QoS, DNS, etc.)
 
 Different Neutron extensions for different agents
 -------------------------------------------------
+
 .. code-block:: yaml
 
     neutron:
@@ -1297,9 +1291,9 @@ Different Neutron extensions for different agents
             dummy:
               enabled: True
 
-
 Neutron with Designate
 -----------------------------------------
+
 .. code-block:: yaml
 
     neutron:
@@ -1314,6 +1308,7 @@ Neutron with Designate
 
 Enable RBAC for OpenContrail engine
 -----------------------------------
+
 .. code-block:: yaml
 
     neutron:
@@ -1326,14 +1321,21 @@ Enable RBAC for OpenContrail engine
 Enhanced logging with logging.conf
 ----------------------------------
 
-By default logging.conf is disabled.
+By default ``logging.conf`` is disabled.
 
 That is possible to enable per-binary logging.conf with new variables:
-  * openstack_log_appender - set it to true to enable log_config_append for all OpenStack services;
-  * openstack_fluentd_handler_enabled - set to true to enable FluentHandler for all Openstack services.
-  * openstack_ossyslog_handler_enabled - set to true to enable OSSysLogHandler for all Openstack services.
 
-Only WatchedFileHandler, OSSysLogHandler and FluentHandler are available.
+* ``openstack_log_appender``
+   Set to true to enable ``log_config_append`` for all OpenStack services
+
+* ``openstack_fluentd_handler_enabled``
+   Set to true to enable FluentHandler for all Openstack services
+
+* ``openstack_ossyslog_handler_enabled``
+   Set to true to enable OSSysLogHandler for all Openstack services.
+
+Only ``WatchedFileHandler``, ``OSSysLogHandler``, and ``FluentHandler``
+are available.
 
 Also it is possible to configure this with pillar:
 
@@ -1398,36 +1400,29 @@ Logging levels pillar example:
             level: 'DEBUG'
     ......
 
-
 Documentation and Bugs
 ======================
 
-To learn how to install and update salt-formulas, consult the documentation
-available online at:
+* http://salt-formulas.readthedocs.io/
+   Learn how to install and update salt-formulas
 
-    http://salt-formulas.readthedocs.io/
+* https://github.com/salt-formulas/salt-formula-neutron/issues
+   In the unfortunate event that bugs are discovered, report the issue to the
+   appropriate issue tracker. Use the Github issue tracker for a specific salt
+   formula
 
-In the unfortunate event that bugs are discovered, they should be reported to
-the appropriate issue tracker. Use Github issue tracker for specific salt
-formula:
+* https://launchpad.net/salt-formulas
+   For feature requests, bug reports, or blueprints affecting the entire
+   ecosystem, use the Launchpad salt-formulas project
 
-    https://github.com/salt-formulas/salt-formula-neutron/issues
+* https://launchpad.net/~salt-formulas-users
+   Join the salt-formulas-users team and subscribe to mailing list if required
 
-For feature requests, bug reports or blueprints affecting entire ecosystem,
-use Launchpad salt-formulas project:
+* https://github.com/salt-formulas/salt-formula-neutron
+   Develop the salt-formulas projects in the master branch and then submit pull
+   requests against a specific formula
 
-    https://launchpad.net/salt-formulas
+* #salt-formulas @ irc.freenode.net
+   Use this IRC channel in case of any questions or feedback which is always
+   welcome
 
-You can also join salt-formulas-users team and subscribe to mailing list:
-
-    https://launchpad.net/~salt-formulas-users
-
-Developers wishing to work on the salt-formulas projects should always base
-their work on master branch and submit pull request against specific formula.
-
-    https://github.com/salt-formulas/salt-formula-neutron
-
-Any questions or feedback is always welcome so feel free to join our IRC
-channel:
-
-    #salt-formulas @ irc.freenode.net
