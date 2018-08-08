@@ -15,6 +15,7 @@ neutron_dhcp_agent:
     - names:
       - neutron-dhcp-agent
     - watch:
+      - file: /etc/neutron/neutron.conf
       - file: /etc/neutron/dhcp_agent.ini
     - require:
       - pkg: neutron_dhcp_agent_packages
