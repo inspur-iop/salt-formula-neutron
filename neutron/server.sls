@@ -1,9 +1,8 @@
 {%- from "neutron/map.jinja" import server, fwaas with context %}
 
-{%- if fwaas.get('enabled', False) %}
 include:
-- neutron.fwaas
-{%- endif %}
+ - neutron.db.offline_sync
+ - neutron.fwaas
 
 {%- if server.get('enabled', False) %}
 {% if grains.os_family == 'Debian' %}
@@ -88,6 +87,8 @@ ml2_packages:
   - require:
     - pkg: neutron_server_packages
     - pkg: ml2_packages
+  - require_in:
+    - sls: neutron.db.offline_sync
   - watch_in:
     - service: neutron_server_services
 
@@ -97,16 +98,6 @@ ml2_plugin_link:
     - ln -s /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugin.ini
   - unless: test -e /etc/neutron/plugin.ini
   - require:
-    - file: /etc/neutron/plugins/ml2/ml2_conf.ini
-
-neutron_db_manage:
-  cmd.run:
-  - name: neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head
-  {%- if grains.get('noservices') %}
-  - onlyif: /bin/false
-  {%- endif %}
-  - require:
-    - file: /etc/neutron/neutron.conf
     - file: /etc/neutron/plugins/ml2/ml2_conf.ini
 
 {%- endif %}
@@ -131,6 +122,8 @@ python-networking-odl:
     {%- if server.database.get('ssl',{}).get('enabled', False) %}
     - file: mysql_ca_neutron_server
     {%- endif %}
+  - require_in:
+    - sls: neutron.db.offline_sync
 
 /etc/neutron/api-paste.ini:
   file.managed:
@@ -230,7 +223,7 @@ ovn_packages:
   pkg.installed:
   - names: {{ server.pkgs_ovn }}
   - require_in:
-    - cmd: neutron_db_manage
+    - sls: neutron.db.offline_sync
 
 {%- if not grains.get('noservices', False) %}
 
@@ -282,16 +275,8 @@ ovn_services:
     - makedirs: true
     - dir_mode: 755
     - template: jinja
-
-neutron_db_manage:
-  cmd.run:
-  - name: neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugins/midonet/midonet.ini upgrade head
-  {%- if grains.get('noservices') %}
-  - onlyif: /bin/false
-  {%- endif %}
-  - require:
-    - file: /etc/neutron/neutron.conf
-    - file: /etc/neutron/plugins/midonet/midonet.ini
+    - require_in:
+      - sls: neutron.db.offline_sync
 
 {%- if server.version == "kilo" %}
 
@@ -301,10 +286,6 @@ midonet_neutron_packages:
     - python-neutron-plugin-midonet
     - python-neutron-lbaas
 
-midonet-db-manage:
-  cmd.run:
-  - name: midonet-db-manage upgrade head
-
 {%- else %}
 
 midonet_neutron_packages:
@@ -313,16 +294,6 @@ midonet_neutron_packages:
     - python-networking-midonet
     - python-neutron-lbaas
     - python-neutron-fwaas
-
-neutron_db_manage:
-  cmd.run:
-  - name: neutron-db-manage --subproject networking-midonet upgrade head
-  {%- if grains.get('noservices') %}
-  - onlyif: /bin/false
-  {%- endif %}
-  - require:
-    - file: /etc/neutron/neutron.conf
-    - file: /etc/neutron/plugins/midonet/midonet.ini
 
 {%- endif %}
 {%- endif %}
@@ -345,16 +316,8 @@ vmware_neutron_packages:
     - template: jinja
     - require:
       - pkg: vmware_neutron_packages
-
-neutron_db_manage:
-  cmd.run:
-  - name: neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugins/vmware/nsx.ini upgrade head
-  {%- if grains.get('noservices') %}
-  - onlyif: /bin/false
-  {%- endif %}
-  - require:
-    - file: /etc/neutron/neutron.conf
-    - file: /etc/neutron/plugins/vmware/nsx.ini
+    - require_in:
+      - sls: neutron.db.offline_sync
 
 {%- endif %}
 
@@ -363,13 +326,6 @@ neutron_db_manage:
 bgpvpn_packages:
   pkg.installed:
   - names: {{ server.pkgs_bgpvpn }}
-
-bgpvpn_db_manage:
-  cmd.run:
-  - name: neutron-db-manage --config-file /etc/neutron/neutron.conf --subproject networking-bgpvpn upgrade head
-  - require:
-    - file: /etc/neutron/neutron.conf
-    - pkg: bgpvpn_packages
 
 {% if server.bgp_vpn.driver == "bagpipe" %}
 
