@@ -227,11 +227,6 @@ ovn_packages:
 
 {%- if not grains.get('noservices', False) %}
 
-remote_ovsdb_access:
-  cmd.run:
-  - name: "ovs-appctl -t ovsdb-server ovsdb-server/add-remote
-  ptcp:6640:{{ server.controller_vip }}"
-
 open_ovs_port:
   iptables.append:
     - table: filter
@@ -250,6 +245,11 @@ ovn_services:
   {%- endif %}
   - require:
     - pkg: ovn_packages
+
+remote_ovsdb_access:
+  cmd.run:
+  - name: "ovs-appctl -t ovsdb-server ovsdb-server/add-remote
+  ptcp:6640:{{ server.controller_vip }}"
 
 {%- if grains.os_family == 'Debian' %}
 /etc/default/ovn-central:
