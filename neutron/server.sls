@@ -115,7 +115,7 @@ python-networking-odl:
 
 /etc/neutron/neutron.conf:
   file.managed:
-  - source: salt://neutron/files/{{ server.version }}/neutron-server.conf.{{ grains.os_family }}
+  - source: salt://neutron/files/{{ server.version }}/neutron-server.conf
   - template: jinja
   - require:
     - pkg: neutron_server_packages
@@ -127,7 +127,7 @@ python-networking-odl:
 
 /etc/neutron/api-paste.ini:
   file.managed:
-    - source: salt://neutron/files/{{ server.version  }}/api-paste.ini.{{ grains.os_family  }}
+    - source: salt://neutron/files/{{ server.version  }}/api-paste.ini
     - template: jinja
     - require:
       - pkg: neutron_server_packages
@@ -205,7 +205,6 @@ neutron_keystone_rule_{{ name }}_absent:
 {%- endfor %}
 
 {%- if grains.os_family == "Debian" %}
-
 /etc/default/neutron-server:
   file.managed:
   - source: salt://neutron/files/{{ server.version }}/neutron-server
@@ -214,7 +213,6 @@ neutron_keystone_rule_{{ name }}_absent:
     - pkg: neutron_server_packages
   - watch_in:
     - service: neutron_server_services
-
 {%- endif %}
 
 {%- if server.backend.engine == "ovn" %}

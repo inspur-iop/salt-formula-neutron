@@ -24,7 +24,7 @@ haproxy:
 
 /etc/neutron/neutron.conf:
   file.managed:
-  - source: salt://neutron/files/{{ gateway.version }}/neutron-generic.conf.{{ grains.os_family }}
+  - source: salt://neutron/files/{{ gateway.version }}/neutron-generic.conf
   - template: jinja
   - require:
     - pkg: neutron_gateway_packages
