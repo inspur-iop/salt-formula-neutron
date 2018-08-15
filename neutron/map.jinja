@@ -2,7 +2,8 @@
     'cacert_file': salt['grains.filter_by']({
         'Debian': '/etc/ssl/certs/ca-certificates.crt',
         'RedHat': '/etc/pki/tls/certs/ca-bundle.crt'
-    })}
+    }),
+    'enabled': false }
 %}
 
 {% set compute = salt['grains.filter_by']({
@@ -151,10 +152,12 @@
 
 {% set client = salt['grains.filter_by']({
     'Debian': {
-        'pkgs': ['python-neutronclient']
+        'pkgs': ['python-neutronclient'],
+        'enabled': false
     },
     'RedHat': {
-        'pkgs': ['python-neutronclient']
+        'pkgs': ['python-neutronclient'],
+        'enabled': false
     },
 }, merge=pillar.neutron.get('client', {})) %}
 

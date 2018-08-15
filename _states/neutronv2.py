@@ -147,6 +147,49 @@ def agent_present(name, agent_type, cloud_name, **kwargs):
         return _failed('find', name, 'agent')
 
 
+def agents_disabled(name, cloud_name, **kwargs):
+    """
+    :param name: agent host name
+    :param kwargs:
+        :param description: agent description
+        :param admin_state_up: administrative state of the agent
+    """
+    agents = _neutronv2_call(
+        'agent_list', host=name, cloud_name=cloud_name)['agents']
+
+    changes = {}
+    for agent in agents:
+      if agent['admin_state_up'] == True:
+        try:
+          changes[agent['id']] = _neutronv2_call('agent_update', agent_id=agent['id'],
+                                                 cloud_name=cloud_name, admin_state_up=False)
+        except Exception:
+          return _failed('update', name, 'agent')
+    return _succeeded('update', name, 'agent',changes)
+
+
+def agents_enabled(name, cloud_name, **kwargs):
+    """
+    :param name: agent host name
+    :param kwargs:
+        :param description: agent description
+        :param admin_state_up: administrative state of the agent
+    """
+    agents = _neutronv2_call(
+        'agent_list', host=name, cloud_name=cloud_name)['agents']
+
+    changes = {}
+    for agent in agents:
+      if agent['admin_state_up'] == False:
+        try:
+          changes[agent['id']] = _neutronv2_call('agent_update', agent_id=agent['id'],
+                                                 cloud_name=cloud_name, admin_state_up=True)
+        except Exception:
+          return _failed('update', name, 'agent')
+
+    return _succeeded('update', name, 'agent', changes)
+
+
 def _succeeded(op, name, resource, changes=None):
     msg_map = {
         'create': '{0} {1} created',
