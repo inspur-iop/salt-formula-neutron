@@ -1,19 +1,13 @@
-from neutronv2.common import send, get_by_name_or_uuid
+from neutronv2.common import send
+from neutronv2.arg_converter import get_by_name_or_uuid_multiple
+
 try:
     from urllib.parse import urlencode
 except ImportError:
     from urllib import urlencode
 
-RESOURCE_LIST_KEY = 'subnetpools'
 
-
-@send('get')
-def subnetpool_list(**kwargs):
-    url = '/subnetpools?{}'.format(urlencode(kwargs))
-    return url, {}
-
-
-@get_by_name_or_uuid(subnetpool_list, RESOURCE_LIST_KEY)
+@get_by_name_or_uuid_multiple([('subnetpool', 'subnetpool_id')])
 @send('get')
 def subnetpool_get_details(subnetpool_id, **kwargs):
     url = '/subnetpools/{}?{}'.format(
@@ -22,7 +16,7 @@ def subnetpool_get_details(subnetpool_id, **kwargs):
     return url, {}
 
 
-@get_by_name_or_uuid(subnetpool_list, RESOURCE_LIST_KEY)
+@get_by_name_or_uuid_multiple([('subnetpool', 'subnetpool_id')])
 @send('put')
 def subnetpool_update(subnetpool_id, **kwargs):
     url = '/subnetpools/{}'.format(subnetpool_id)
@@ -32,7 +26,7 @@ def subnetpool_update(subnetpool_id, **kwargs):
     return url, {'json': json}
 
 
-@get_by_name_or_uuid(subnetpool_list, RESOURCE_LIST_KEY)
+@get_by_name_or_uuid_multiple([('subnetpool', 'subnetpool_id')])
 @send('delete')
 def subnetpool_delete(subnetpool_id, **kwargs):
     url = '/subnetpools/{}'.format(subnetpool_id)

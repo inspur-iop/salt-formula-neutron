@@ -15,7 +15,7 @@ def _resource_present(resource, name, changeable_params, cloud_name, **kwargs):
     try:
         method_name = '{}_get_details'.format(resource)
         exact_resource = _neutronv2_call(
-            method_name, name=name, cloud_name=cloud_name
+            method_name, name, cloud_name=cloud_name
         )[resource]
     except Exception as e:
         if 'ResourceNotFound' in repr(e):
@@ -54,7 +54,7 @@ def _resource_absent(resource, name, cloud_name):
     try:
         method_name = '{}_get_details'.format(resource)
         _neutronv2_call(
-            method_name, name=name, cloud_name=cloud_name
+            method_name, name, cloud_name=cloud_name
         )[resource]
     except Exception as e:
         if 'ResourceNotFound' in repr(e):
@@ -64,7 +64,7 @@ def _resource_absent(resource, name, cloud_name):
     try:
         method_name = '{}_delete'.format(resource)
         _neutronv2_call(
-            method_name, name=name, cloud_name=cloud_name
+            method_name, name, cloud_name=cloud_name
         )
     except Exception as e:
         log.error('Neutron delete {0} failed with {1}'.format(resource, e))
@@ -115,6 +115,36 @@ def subnetpool_present(name, cloud_name, prefixes, **kwargs):
 
 def subnetpool_absent(name, cloud_name):
     return _resource_absent('subnetpool', name, cloud_name)
+
+
+def agent_present(name, agent_type, cloud_name, **kwargs):
+    """
+    :param name: agent host name
+    :param agent_type: type of the agent. i.e. 'L3 agent' or 'DHCP agent'
+    :param kwargs:
+        :param description: agent description
+        :param admin_state_up: administrative state of the agent
+    """
+    agents = _neutronv2_call(
+        'agent_list', host=name, agent_type=agent_type,
+        cloud_name=cloud_name)['agents']
+    # Make sure we have one and only one such agent
+    if len(agents) == 1:
+        agent = agents[0]
+        to_update = {}
+        for key in kwargs:
+            if kwargs[key] != agent[key]:
+                to_update[key] = kwargs[key]
+        if to_update:
+            try:
+                _neutronv2_call('agent_update', agent_id=agent['id'],
+                                cloud_name=cloud_name, **kwargs)
+            except Exception:
+                return _failed('update', name, 'agent')
+            return _succeeded('update', name, 'agent')
+        return _succeeded('no_changes', name, 'agent')
+    else:
+        return _failed('find', name, 'agent')
 
 
 def _succeeded(op, name, resource, changes=None):

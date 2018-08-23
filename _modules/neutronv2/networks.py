@@ -1,26 +1,20 @@
-from neutronv2.common import send, get_by_name_or_uuid
+from neutronv2.common import send
+from neutronv2.arg_converter import get_by_name_or_uuid_multiple
+
 try:
     from urllib.parse import urlencode
 except ImportError:
     from urllib import urlencode
 
-RESOURCE_LIST_KEY = 'networks'
 
-
-@send('get')
-def network_list(**kwargs):
-    url = '/networks?{}'.format(urlencode(kwargs))
-    return url, {}
-
-
-@get_by_name_or_uuid(network_list, RESOURCE_LIST_KEY)
+@get_by_name_or_uuid_multiple([('network', 'network_id')])
 @send('get')
 def network_get_details(network_id, **kwargs):
     url = '/networks/{}?{}'.format(network_id, urlencode(kwargs))
     return url, {}
 
 
-@get_by_name_or_uuid(network_list, RESOURCE_LIST_KEY)
+@get_by_name_or_uuid_multiple([('network', 'network_id')])
 @send('put')
 def network_update(network_id, **kwargs):
     url = '/networks/{}'.format(network_id)
@@ -30,7 +24,7 @@ def network_update(network_id, **kwargs):
     return url, {'json': json}
 
 
-@get_by_name_or_uuid(network_list, RESOURCE_LIST_KEY)
+@get_by_name_or_uuid_multiple([('network', 'network_id')])
 @send('delete')
 def network_delete(network_id, **kwargs):
     url = '/networks/{}'.format(network_id)

@@ -1,6 +1,6 @@
+import functools
 import logging
 import os_client_config
-from uuid import UUID
 
 log = logging.getLogger(__name__)
 
@@ -63,6 +63,7 @@ def _get_raw_client(cloud_name):
 
 def send(method):
     def wrap(func):
+        @functools.wraps(func)
         def wrapped_f(*args, **kwargs):
             cloud_name = kwargs.pop('cloud_name')
             if not cloud_name:
@@ -87,39 +88,5 @@ def send(method):
             except ValueError:
                 resp = response.content
             return resp
-        return wrapped_f
-    return wrap
-
-
-def _check_uuid(val):
-    try:
-        return str(UUID(val)) == val
-    except (TypeError, ValueError, AttributeError):
-        return False
-
-
-def get_by_name_or_uuid(resource_list, resp_key,
-                        res_id_key='name'):
-    def wrap(func):
-        def wrapped_f(*args, **kwargs):
-            if res_id_key in kwargs:
-                ref = kwargs.pop(res_id_key)
-                start_arg = 0
-            else:
-                start_arg = 1
-                ref = args[0]
-            cloud_name = kwargs['cloud_name']
-            if _check_uuid(ref):
-                uuid = ref
-            else:
-                # Then we have name not uuid
-                resp = resource_list(
-                    name=ref, cloud_name=cloud_name)[resp_key]
-                if len(resp) == 0:
-                    raise ResourceNotFound(resp_key, ref)
-                elif len(resp) > 1:
-                    raise MultipleResourcesFound(resp_key, ref)
-                uuid = resp[0]['id']
-            return func(uuid, *args[start_arg:], **kwargs)
         return wrapped_f
     return wrap
