@@ -1,8 +1,9 @@
 {%- from "neutron/map.jinja" import server, fwaas with context %}
 
 include:
- - neutron.db.offline_sync
- - neutron.fwaas
+  - neutron.db.offline_sync
+  - neutron.fwaas
+  - neutron._ssl.mysql
 
 {%- if server.get('enabled', False) %}
 {% if grains.os_family == 'Debian' %}
@@ -33,6 +34,8 @@ policy_rcd_absent_onfail:
 neutron_server_packages:
   pkg.installed:
   - names: {{ server.pkgs }}
+  - require_in:
+    - sls: neutron._ssl.mysql
 
 {% if server.backend.engine == "contrail" %}
 
@@ -63,13 +66,12 @@ neutron_server_service:
   {%- if grains.get('noservices') %}
   - onlyif: /bin/false
   {%- endif %}
+  - require:
+    - sls: neutron._ssl.mysql
   - watch:
     - file: /etc/neutron/neutron.conf
     {%- if server.message_queue.get('ssl',{}).get('enabled', False) %}
     - file: rabbitmq_ca_neutron_server
-    {%- endif %}
-    {%- if server.database.get('ssl',{}).get('enabled', False) %}
-    - file: mysql_ca_neutron_server
     {%- endif %}
 
 {%- endif %}
@@ -119,9 +121,7 @@ python-networking-odl:
   - template: jinja
   - require:
     - pkg: neutron_server_packages
-    {%- if server.database.get('ssl',{}).get('enabled', False) %}
-    - file: mysql_ca_neutron_server
-    {%- endif %}
+    - sls: neutron._ssl.mysql
   - require_in:
     - sls: neutron.db.offline_sync
 
@@ -363,13 +363,12 @@ neutron_server_services:
   {%- if grains.get('noservices') %}
   - onlyif: /bin/false
   {%- endif %}
+  - require:
+    - sls: neutron._ssl.mysql
   - watch:
     - file: /etc/neutron/neutron.conf
     {%- if server.message_queue.get('ssl',{}).get('enabled', False) %}
     - file: rabbitmq_ca_neutron_server
-    {%- endif %}
-    {%- if server.database.get('ssl',{}).get('enabled', False) %}
-    - file: mysql_ca_neutron_server
     {%- endif %}
 
 {%- if grains.get('virtual_subtype', None) == "Docker" %}
@@ -395,20 +394,6 @@ rabbitmq_ca_neutron_server:
 {%- else %}
   file.exists:
    - name: {{ server.message_queue.ssl.get('cacert_file', server.cacert_file) }}
-{%- endif %}
-{%- endif %}
-
-{%- if server.database.get('ssl',{}).get('enabled', False) %}
-mysql_ca_neutron_server:
-{%- if server.database.ssl.cacert is defined %}
-  file.managed:
-    - name: {{ server.database.ssl.cacert_file }}
-    - contents_pillar: neutron:server:database:ssl:cacert
-    - mode: 0444
-    - makedirs: true
-{%- else %}
-  file.exists:
-   - name: {{ server.database.ssl.get('cacert_file', server.cacert_file) }}
 {%- endif %}
 {%- endif %}
 
