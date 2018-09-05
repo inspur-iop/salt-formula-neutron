@@ -14,7 +14,7 @@ policy_rcd_present:
   - name: /usr/sbin/policy-rc.d
   - mode: 0775
   - contents: "exit 101"
-  - require_in:
+  - prereq:
     - pkg: neutron_server_packages
 
 policy_rcd_absent_ok:
