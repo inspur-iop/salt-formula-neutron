@@ -1,6 +1,13 @@
+import logging
+import time
+from salt.exceptions import CommandExecutionError
+
 from neutronv2.common import send
 from neutronv2.arg_converter import get_by_name_or_uuid_multiple
+from neutronv2.lists import agent_list
 
+
+log = logging.getLogger(__name__)
 
 try:
     from urllib.parse import urlencode
@@ -87,3 +94,40 @@ def dhcp_agent_network_remove(network_id, agent_id, **kwargs):
 def dhcp_agent_by_network_list(network_id, **kwargs):
     url = '/networks/{}/dhcp-agents'.format(network_id)
     return url, {}
+
+
+def wait_for_network_services(cloud_name, host_id=None,
+                              admin_up_only=True,
+                              retries=18, timeout=10):
+    """
+    Ensure services on specified host are alive, othervise fail with exception.
+
+    :param host_id:              host name to wait or None (to check for all hosts)
+    :param cloud_name:           name of cloud from os client config
+    :param admin_up_only:        do not check for admin disabled agents
+    :param timeout:              number of seconds to wait before retries
+    :param retries:              number of retries
+    """
+
+    kwargs = {'alive': False}
+
+    if admin_up_only:
+      kwargs['admin_state_up'] = True
+
+    if host_id is not None:
+      kwargs['host'] = host_id
+
+    res = None
+    for i in range(retries):
+        try:
+          agents = agent_list(cloud_name=cloud_name, **kwargs)['agents']
+          res = len(agents)
+        except Exception as e:
+          msg = "Failed to get agent list {0}".format(e)
+          log.trace(msg)
+          raise CommandExecutionError(e)
+
+        if res == 0:
+            return "All services are up"
+        time.sleep(timeout)
+    raise CommandExecutionError("Some agents are still down {}".format(agents))

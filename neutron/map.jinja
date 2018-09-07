@@ -187,3 +187,13 @@
         'agents_failed_major_threshold': 0.6,
     },
 }, grain='os_family', merge=salt['pillar.get']('neutron:monitoring')) %}
+
+{% set upgrade = salt['grains.filter_by']({
+    'default': {
+        'resource_migration': {
+          'l3': {
+            'enabled': True
+          }
+        }
+    },
+}, grain='os_family', merge=pillar.get('neutron', {}).get('upgrade')) %}

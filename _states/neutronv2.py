@@ -1,4 +1,5 @@
 import logging
+import random
 
 log = logging.getLogger(__name__)
 
@@ -190,13 +191,60 @@ def agents_enabled(name, cloud_name, **kwargs):
     return _succeeded('update', name, 'agent', changes)
 
 
+def l3_resources_moved(name, cloud_name, target=None):
+    """
+    Ensure l3 resources are moved to target/other nodes
+    Move non-HA (legacy and DVR) routers.
+
+    :param name: agent host to remove routers from
+    :param target: target host to move routers to
+    :param cloud_name: name of cloud from os client config
+    """
+
+    all_agents = _neutronv2_call(
+        'agent_list', agent_type='L3 agent', cloud_name=cloud_name)['agents']
+
+    current_agent_id = [x['id'] for x in all_agents if x['host'] == name][0]
+
+    if target is not None:
+      target_agents = [x['id'] for x in all_agents if x['host'] == target]
+    else:
+      target_agents = [x['id'] for x in all_agents
+                       if x['host'] != name and x['alive'] and x['admin_state_up']]
+
+    if len(target_agents) == 0:
+        log.error("No candidate agents to move routers.")
+        return _failed('resources_moved', name, 'L3 agent')
+
+    routers_on_agent = _neutronv2_call(
+        'l3_agent_router_list', current_agent_id, cloud_name=cloud_name)['routers']
+
+    routers_on_agent = [x for x in routers_on_agent if x['ha'] == False]
+
+    try:
+        for router in routers_on_agent:
+            _neutronv2_call(
+                'l3_agent_router_remove', router_id=router['id'],
+                agent_id=current_agent_id, cloud_name=cloud_name)
+            _neutronv2_call(
+                'l3_agent_router_schedule', router_id=router['id'],
+                agent_id=random.choice(target_agents),
+                cloud_name=cloud_name)
+    except Exception as e:
+        log.exception("Failed to move router from {0}: {1}".format(name, e))
+        return _failed('resources_moved', name, 'L3 agent')
+
+    return _succeeded('resources_moved', name, 'L3 agent')
+
+
 def _succeeded(op, name, resource, changes=None):
     msg_map = {
         'create': '{0} {1} created',
         'delete': '{0} {1} removed',
         'update': '{0} {1} updated',
         'no_changes': '{0} {1} is in desired state',
-        'absent': '{0} {1} not present'
+        'absent': '{0} {1} not present',
+        'resources_moved': '{1} resources were moved from {0}',
     }
     changes_dict = {
         'name': name,
@@ -212,7 +260,8 @@ def _failed(op, name, resource):
         'create': '{0} {1} failed to create',
         'delete': '{0} {1} failed to delete',
         'update': '{0} {1} failed to update',
-        'find': '{0} {1} found multiple {0}'
+        'find': '{0} {1} found multiple {0}',
+        'resources_moved': 'failed to move {1} from {0}',
     }
     changes_dict = {
         'name': name,

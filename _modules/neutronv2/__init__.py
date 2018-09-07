@@ -60,6 +60,7 @@ router_delete = routers.router_delete
 router_interface_add = routers.router_interface_add
 router_interface_remove = routers.router_interface_remove
 
+wait_for_network_services = agents.wait_for_network_services
 
 __all__ = (
     'network_get_details', 'network_update', 'network_delete', 'network_list',
