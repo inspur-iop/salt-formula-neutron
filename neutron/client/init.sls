@@ -1,0 +1,2 @@
+include:
+- neutron.client.resources

@@ -1,12 +1,15 @@
 {%- from "neutron/map.jinja" import client with context %}
 {%- if client.enabled %}
 
+include:
+- neutron.client.resources.v2
+
 neutron_client_packages:
   pkg.installed:
   - names: {{ client.pkgs }}
 
 
-{%- for identity_name, identity in client.server.iteritems() %}
+{%- for identity_name, identity in client.get('server', {}).iteritems() %}
 
 {%- if identity.security_group is defined %}
 
