@@ -9,7 +9,7 @@
 {% set compute = salt['grains.filter_by']({
     'BaseDefaults': default_params,
     'Debian': {
-        'pkgs': ['neutron-openvswitch-agent', 'openvswitch-switch', 'python-pycadf'],
+        'pkgs': ['neutron-openvswitch-agent', 'python-pycadf'],
         'pkgs_ovn': ['ovn-common', 'ovn-host'],
         'pkgs_bagpipe': ['python-networking-bagpipe'],
         'services': ['neutron-openvswitch-agent'],
@@ -30,7 +30,7 @@
         },
     },
     'RedHat': {
-        'pkgs': ['openstack-neutron-openvswitch', 'openvswitch', 'python-pycadf'],
+        'pkgs': ['openstack-neutron-openvswitch', 'python-pycadf'],
         'pkgs_ovn': ['openvswitch-ovn'],
         'pkgs_bagpipe': ['python-networking-bagpipe'],
         'services': ['neutron-openvswitch-agent'],
@@ -53,7 +53,7 @@
 }, merge=pillar.neutron.get('compute', {}), base='BaseDefaults') %}
 
 {%- set opendaylight_enabled = pillar.neutron.gateway is defined and pillar.neutron.gateway.opendaylight is defined %}
-{%- set pkgs_list = ['neutron-dhcp-agent', 'openvswitch-common', 'neutron-metadata-agent'] %}
+{%- set pkgs_list = ['neutron-dhcp-agent', 'neutron-metadata-agent'] %}
 {%- set services_list = ['neutron-metadata-agent', 'neutron-dhcp-agent'] %}
 {%- if not opendaylight_enabled %}
 {%- do pkgs_list.extend(['neutron-openvswitch-agent', 'neutron-l3-agent']) %}
