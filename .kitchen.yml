@@ -158,6 +158,11 @@ suites:
       pillars-from-files:
         neutron.sls: tests/pillar/control_bgpvpn.sls
 
+  - name: control_sfc
+    provisioner:
+      pillars-from-files:
+        neutron.sls: tests/pillar/control_sfc.sls
+
   - name: gateway_dvr
     provisioner:
       pillars-from-files:

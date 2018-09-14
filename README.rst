@@ -961,6 +961,27 @@ Compute node:
         provider_mappings: physnet1:br-floating
 
 
+Service Function Chaining Extension (SFC)
+----------------
+
+.. code-block:: yaml
+
+    neutron:
+      server:
+        sfc:
+          enabled: true
+          sfc_drivers:
+            - ovs # valid options: ovs, odl, ovn (not implemented yet)
+          flow_classifier_drivers:
+            - ovs # valid options: see above
+      ....
+      compute:
+        backend:
+          ovs_extension:
+            sfc:
+              enabled: True
+
+
 Neutron Server
 --------------
 
