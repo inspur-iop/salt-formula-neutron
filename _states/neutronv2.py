@@ -43,7 +43,7 @@ def _resource_present(resource, name, changeable_params, cloud_name, **kwargs):
     try:
         method_name = '{}_update'.format(resource)
         resp = _neutronv2_call(
-            method_name, name=name, cloud_name=cloud_name, **to_update
+            method_name, name, cloud_name=cloud_name, **to_update
         )
     except Exception as e:
         log.exception('Neutron {0} update failed with {1}'.format(resource, e))
