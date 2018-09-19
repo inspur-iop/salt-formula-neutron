@@ -1,7 +1,8 @@
 {% from "neutron/map.jinja" import gateway, fwaas with context %}
 
-{%- if fwaas.get('enabled', False) %}
 include:
+- neutron._ssl.rabbitmq
+{%- if fwaas.get('enabled', False) %}
 - neutron.fwaas
 {%- endif %}
 
@@ -9,6 +10,8 @@ include:
 neutron_gateway_packages:
   pkg.installed:
   - names: {{ gateway.pkgs }}
+  - require_in:
+    - sls: neutron._ssl.rabbitmq
 
 {%- if not grains.get('noservices', False) and pillar.haproxy is not defined %}
 # NOTE(mpolenchuk): haproxy is used as a replacement for
@@ -28,6 +31,7 @@ haproxy:
   - template: jinja
   - require:
     - pkg: neutron_gateway_packages
+    - sls: neutron._ssl.rabbitmq
 
 {%- endif %}
 
@@ -147,23 +151,5 @@ neutron_gateway_services:
     {%- if fwaas.get('enabled', False) %}
     - file: /etc/neutron/fwaas_driver.ini
     {%- endif %}
-    {%- if gateway.message_queue.get('ssl',{}).get('enabled', False) %}
-    - file: rabbitmq_ca_neutron_gateway
-    {%- endif %}
-
-
-{%- if gateway.message_queue.get('ssl',{}).get('enabled', False) %}
-rabbitmq_ca_neutron_gateway:
-{%- if gateway.message_queue.ssl.cacert is defined %}
-  file.managed:
-    - name: {{ gateway.message_queue.ssl.cacert_file }}
-    - contents_pillar: neutron:gateway:message_queue:ssl:cacert
-    - mode: 0444
-    - makedirs: true
-{%- else %}
-  file.exists:
-   - name: {{ gateway.message_queue.ssl.get('cacert_file', gateway.cacert_file) }}
-{%- endif %}
-{%- endif %}
 
 {%- endif %}

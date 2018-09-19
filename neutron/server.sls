@@ -4,6 +4,7 @@ include:
   - neutron.db.offline_sync
   - neutron.fwaas
   - neutron._ssl.mysql
+  - neutron._ssl.rabbitmq
 
 {%- if server.get('enabled', False) %}
 {% if grains.os_family == 'Debian' %}
@@ -36,6 +37,7 @@ neutron_server_packages:
   - names: {{ server.pkgs }}
   - require_in:
     - sls: neutron._ssl.mysql
+    - sls: neutron._ssl.rabbitmq
 
 {% if server.backend.engine == "contrail" %}
 
@@ -68,11 +70,9 @@ neutron_server_service:
   {%- endif %}
   - require:
     - sls: neutron._ssl.mysql
+    - sls: neutron._ssl.rabbitmq
   - watch:
     - file: /etc/neutron/neutron.conf
-    {%- if server.message_queue.get('ssl',{}).get('enabled', False) %}
-    - file: rabbitmq_ca_neutron_server
-    {%- endif %}
 
 {%- endif %}
 
@@ -122,6 +122,7 @@ python-networking-odl:
   - require:
     - pkg: neutron_server_packages
     - sls: neutron._ssl.mysql
+    - sls: neutron._ssl.rabbitmq
   - require_in:
     - sls: neutron.db.offline_sync
 
@@ -365,11 +366,9 @@ neutron_server_services:
   {%- endif %}
   - require:
     - sls: neutron._ssl.mysql
+    - sls: neutron._ssl.rabbitmq
   - watch:
     - file: /etc/neutron/neutron.conf
-    {%- if server.message_queue.get('ssl',{}).get('enabled', False) %}
-    - file: rabbitmq_ca_neutron_server
-    {%- endif %}
 
 {%- if grains.get('virtual_subtype', None) == "Docker" %}
 
@@ -380,21 +379,6 @@ neutron_entrypoint:
   - source: salt://neutron/files/entrypoint.sh
   - mode: 755
 
-{%- endif %}
-
-
-{%- if server.message_queue.get('ssl',{}).get('enabled', False) %}
-rabbitmq_ca_neutron_server:
-{%- if server.message_queue.ssl.cacert is defined %}
-  file.managed:
-    - name: {{ server.message_queue.ssl.cacert_file }}
-    - contents_pillar: neutron:server:message_queue:ssl:cacert
-    - mode: 0444
-    - makedirs: true
-{%- else %}
-  file.exists:
-   - name: {{ server.message_queue.ssl.get('cacert_file', server.cacert_file) }}
-{%- endif %}
 {%- endif %}
 
 {%- endif %}
