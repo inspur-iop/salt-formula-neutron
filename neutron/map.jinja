@@ -96,10 +96,16 @@
     },
 }, merge=pillar.neutron.get('gateway', {}), base='BaseDefaults') %}
 
+{%- set sfc_enabled = pillar.neutron.get('server', {}).get('sfc', {}).get('enabled', False) %}
+{%- set server_pkgs_list = ['neutron-server','python-neutron-lbaas', 'gettext-base', 'python-pycadf'] %}
+{%- if sfc_enabled %}
+{%- do server_pkgs_list.append('python-networking-sfc') %}
+{%- endif %}
+
 {% set server = salt['grains.filter_by']({
     'BaseDefaults': default_params,
     'Debian': {
-        'pkgs': ['neutron-server','python-neutron-lbaas', 'gettext-base', 'python-pycadf'],
+        'pkgs': server_pkgs_list,
         'pkgs_ovn': ['python-networking-ovn', 'ovn-common', 'ovn-central'],
         'pkgs_ml2': ['neutron-plugin-ml2'],
         'pkgs_l2gw': ['python-networking-l2gw'],
