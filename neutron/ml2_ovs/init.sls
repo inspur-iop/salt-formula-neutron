@@ -17,6 +17,7 @@ neutron_compute_packages:
   - template: jinja
   - require:
     - pkg: neutron_compute_packages
+    - sls: neutron._ssl.rabbitmq
 
     {% if compute.backend.sriov is defined %}
 
@@ -55,11 +56,6 @@ neutron_sriov_service:
 
     {% if compute.dvr %}
 
-      {%- if fwaas.get('enabled', False) %}
-include:
-- neutron.fwaas
-      {%- endif %}
-
       {%- if not grains.get('noservices', False) and pillar.haproxy is not defined %}
 # NOTE(mpolenchuk): haproxy is used as a replacement for
 # neutron-ns-metadata-proxy Python implementation starting from Pike
@@ -92,12 +88,9 @@ neutron_dvr_agents:
       {%- if fwaas.get('enabled', False) %}
       - file: /etc/neutron/fwaas_driver.ini
       {% endif %}
-      {%- if compute.message_queue.get('ssl',{}).get('enabled', False) %}
-      - file: rabbitmq_ca_neutron_compute
-      {%- endif %}
     - require:
       - pkg: neutron_dvr_packages
-
+      - sls: neutron._ssl.rabbitmq
 /etc/neutron/l3_agent.ini:
   file.managed:
   - source: salt://neutron/files/{{ compute.version }}/l3_agent.ini
@@ -216,20 +209,6 @@ neutron_compute_fluentd_logger_package:
       {% endfor %}
 
     {% endif %}
-
-    {%- if compute.message_queue.get('ssl',{}).get('enabled', False) %}
-rabbitmq_ca_neutron_compute:
-      {%- if compute.message_queue.ssl.cacert is defined %}
-  file.managed:
-    - name: {{ compute.message_queue.ssl.cacert_file }}
-    - contents_pillar: neutron:compute:message_queue:ssl:cacert
-    - mode: 0444
-    - makedirs: true
-      {%- else %}
-  file.exists:
-   - name: {{ compute.message_queue.ssl.get('cacert_file', compute.cacert_file) }}
-      {%- endif %}
-    {%- endif %}
 
   {%- endif %}
 

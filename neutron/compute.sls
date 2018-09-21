@@ -1,5 +1,15 @@
 {% from "neutron/map.jinja" import compute, fwaas with context %}
+
 {%- if compute.enabled %}
+include:
+{% if compute.backend.engine == "ml2" %}
+  {% if compute.dvr %}
+    {%- if fwaas.get('enabled', False) %}
+- neutron.fwaas
+    {%- endif %}
+  {%- endif %}
+{%- endif %}
+- neutron._ssl.rabbitmq
 
   {% if compute.backend.engine == "ml2" %}
 
@@ -8,6 +18,8 @@ neutron_dhcp_agent_packages:
   pkg.installed:
   - names:
     - neutron-dhcp-agent
+  - require_in:
+    - sls: neutron._ssl.rabbitmq
 
 neutron_dhcp_agent:
   service.running:
@@ -80,7 +92,7 @@ ovn_services:
       {%- endif %}
   - require:
     - pkg: ovn_packages
-
+    - sls: neutron._ssl.rabbitmq
     {%- endif %}
 
   {%- endif %}
