@@ -346,6 +346,8 @@ vmware_neutron_packages:
 bgpvpn_packages:
   pkg.installed:
   - names: {{ server.pkgs_bgpvpn }}
+  - require_in:
+    - sls: neutron.db.offline_sync
 
 {% if server.bgp_vpn.driver == "bagpipe" %}
 
