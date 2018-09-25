@@ -264,6 +264,40 @@ Compute Node:
           enabled: false
 
 
+Setting mac base address
+------------------------
+
+By default neutron uses fa:16:3f:00:00:00 basement for mac generator.
+One can set it's own mac base both for dvr and nondvr cases.
+
+NOTE: dvr_base_mac and base_mac SHOULD differ.
+
+.. code-block:: yaml
+
+    neutron:
+      server:
+        base_mac: fa:16:3f:00:00:00
+        dvr_base_mac: fa:16:3f:a0:00:00
+
+gateways:
+
+.. code-block:: yaml
+
+    neutron:
+      gateway:
+        base_mac: fa:16:3f:00:00:00
+        dvr_base_mac: fa:16:3f:a0:00:00
+
+compute nodes:
+
+.. code-block:: yaml
+
+    neutron:
+      compute:
+        base_mac: fa:16:3f:00:00:00
+        dvr_base_mac: fa:16:3f:a0:00:00
+
+
 Disable physnet1 bridge
 -----------------------
 

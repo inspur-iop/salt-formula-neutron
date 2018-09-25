@@ -1,5 +1,7 @@
 neutron:
   compute:
+    base_mac: fa:16:3f:00:00:00
+    dvr_base_mac: fa:16:3f:a0:00:00
     agent_mode: dvr
     backend:
       engine: ml2
@@ -22,4 +24,4 @@ neutron:
       host: 127.0.0.1
       password: password
       workers: 2
-    version: mitaka
+    version: pike
