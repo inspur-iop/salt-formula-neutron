@@ -18,7 +18,7 @@ neutron_{{ role }}_ssl_rabbitmq:
   test.show_notification:
     - text: "Running neutron._ssl.rabbitmq"
 
-{%- if neutron_msg.get('x509',{}).get('enabled',False) %}
+{%- if neutron_msg is mapping and neutron_msg.get('x509',{}).get('enabled',False) %}
 
   {%- set ca_file=neutron_msg.x509.ca_file %}
   {%- set key_file=neutron_msg.x509.key_file %}
