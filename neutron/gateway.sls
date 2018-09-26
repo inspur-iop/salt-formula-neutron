@@ -82,6 +82,7 @@ haproxy:
         values: {{ gateway }}
     - require:
       - pkg: neutron_gateway_packages
+      - sls: neutron._ssl.rabbitmq
     - watch_in:
       - service: neutron_gateway_services
 {% endfor %}

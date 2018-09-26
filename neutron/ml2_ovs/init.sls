@@ -48,9 +48,6 @@ neutron_sriov_service:
     - file: /etc/neutron/neutron.conf
     - file: /etc/neutron/plugins/ml2/openvswitch_agent.ini
     - file: /etc/neutron/plugins/ml2/sriov_agent.ini
-      {%- if compute.message_queue.get('ssl',{}).get('enabled', False) %}
-    - file: rabbitmq_ca_neutron_compute
-      {%- endif %}
 
     {% endif %}
 
@@ -125,9 +122,6 @@ neutron_compute_services:
   - watch:
     - file: /etc/neutron/neutron.conf
     - file: /etc/neutron/plugins/ml2/openvswitch_agent.ini
-    {%- if compute.message_queue.get('ssl',{}).get('enabled', False) %}
-    - file: rabbitmq_ca_neutron_compute
-    {%- endif %}
 
     {%- set neutron_compute_services_list = compute.services %}
     {%- if compute.backend.sriov is defined %}
