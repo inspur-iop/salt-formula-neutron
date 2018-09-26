@@ -9,6 +9,8 @@ networking_l2gw_packages:
   file.managed:
   - source: salt://neutron/files/{{ server.version }}/l2gw/l2gw_plugin.ini
   - template: jinja
+  - mode: 0640
+  - group: neutron
   - require_in:
     - cmd: neutron_db_manage
   - require:

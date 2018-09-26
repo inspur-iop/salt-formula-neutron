@@ -8,6 +8,8 @@ l2gw_agent_packages:
 /etc/neutron/l2gateway_agent.ini:
   file.managed:
   - source: salt://neutron/files/{{ gateway.version }}/l2gw/l2gateway_agent.ini
+  - mode: 0640
+  - group: neutron
   - template: jinja
   - require:
     - pkg: l2gw_agent_packages

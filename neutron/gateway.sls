@@ -12,6 +12,9 @@ neutron_gateway_packages:
   - names: {{ gateway.pkgs }}
   - require_in:
     - sls: neutron._ssl.rabbitmq
+  {%- if fwaas.get('enabled', False) %}
+    - sls: neutron.fwaas
+  {%- endif %}
 
 {%- if not grains.get('noservices', False) and pillar.haproxy is not defined %}
 # NOTE(mpolenchuk): haproxy is used as a replacement for
@@ -28,6 +31,8 @@ haproxy:
 /etc/neutron/neutron.conf:
   file.managed:
   - source: salt://neutron/files/{{ gateway.version }}/neutron-generic.conf
+  - mode: 0640
+  - group: neutron
   - template: jinja
   - require:
     - pkg: neutron_gateway_packages
@@ -45,6 +50,8 @@ haproxy:
 /etc/neutron/l3_agent.ini:
   file.managed:
   - source: salt://neutron/files/{{ gateway.version }}/l3_agent.ini
+  - mode: 0640
+  - group: neutron
   - template: jinja
   - require:
     - pkg: neutron_gateway_packages
@@ -52,6 +59,8 @@ haproxy:
 /etc/neutron/plugins/ml2/openvswitch_agent.ini:
   file.managed:
   - source: salt://neutron/files/{{ gateway.version }}/openvswitch_agent.ini
+  - mode: 0640
+  - group: neutron
   - template: jinja
   - require:
     - pkg: neutron_gateway_packages
@@ -60,6 +69,8 @@ haproxy:
 /etc/neutron/dhcp_agent.ini:
   file.managed:
   - source: salt://neutron/files/{{ gateway.version }}/dhcp_agent.ini
+  - mode: 0640
+  - group: neutron
   - template: jinja
   - require:
     - pkg: neutron_gateway_packages
@@ -67,6 +78,8 @@ haproxy:
 /etc/neutron/metadata_agent.ini:
   file.managed:
   - source: salt://neutron/files/{{ gateway.version }}/metadata_agent.ini
+  - mode: 0640
+  - group: neutron
   - template: jinja
   - require:
     - pkg: neutron_gateway_packages
@@ -141,6 +154,8 @@ neutron_gateway_services:
   service.running:
   - names: {{ gateway.services }}
   - enable: true
+  - require:
+    - sls: neutron._ssl.rabbitmq
   - watch:
     - file: /etc/neutron/neutron.conf
     - file: /etc/neutron/metadata_agent.ini

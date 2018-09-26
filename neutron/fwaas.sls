@@ -10,6 +10,8 @@ neutron_fwaas_packages:
 /etc/neutron/fwaas_driver.ini:
   file.managed:
   - source: salt://neutron/files/{{ fwaas.version }}/fwaas_driver.ini
+  - mode: 0640
+  - group: neutron
   - template: jinja
   - require:
     - pkg: neutron_fwaas_packages
