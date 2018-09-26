@@ -1,6 +1,7 @@
 import functools
 import logging
 import os_client_config
+import time
 
 log = logging.getLogger(__name__)
 
@@ -66,6 +67,8 @@ def send(method):
         @functools.wraps(func)
         def wrapped_f(*args, **kwargs):
             cloud_name = kwargs.pop('cloud_name')
+            connect_retries =  15
+            connect_retry_delay = 1
             if not cloud_name:
                 e = NoCredentials()
                 log.error('%s' % e)
@@ -80,7 +83,21 @@ def send(method):
             if 'microversion' in kwargs:
                 request_kwargs['headers'][
                     NEUTRON_VERSION_HEADER] = kwargs['microversion']
-            response = getattr(adapter, method)(url, **request_kwargs)
+            for i in range(connect_retries):
+                try:
+                  response = getattr(adapter, method)(
+                      url, connect_retries=connect_retries,
+                      **request_kwargs)
+                except Exception as e:
+                    if hasattr(e, 'http_status') and (e.http_status >= 500
+                        or e.http_status == 0):
+                        msg = ("Got retriable exception when contacting "
+                               "Neutron API. Sleeping for %ss. Attepmpts "
+                               "%s of %s")
+                        log.error(msg % (connect_retry_delay, i, connect_retries))
+                        time.sleep(connect_retry_delay)
+                        continue
+                break
             if not response.content:
                 return {}
             try:
