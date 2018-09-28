@@ -85,6 +85,9 @@ ml2_packages:
 /etc/neutron/plugins/ml2/ml2_conf.ini:
   file.managed:
   - source: salt://neutron/files/{{ server.version }}/ml2_conf.ini
+  - mode: 0640
+  - user: root
+  - group: neutron
   - template: jinja
   - require:
     - pkg: neutron_server_packages
@@ -118,6 +121,9 @@ python-networking-odl:
 /etc/neutron/neutron.conf:
   file.managed:
   - source: salt://neutron/files/{{ server.version }}/neutron-server.conf
+  - mode: 0640
+  - user: root
+  - group: neutron
   - template: jinja
   - require:
     - pkg: neutron_server_packages
@@ -129,6 +135,8 @@ python-networking-odl:
 /etc/neutron/api-paste.ini:
   file.managed:
     - source: salt://neutron/files/{{ server.version  }}/api-paste.ini
+    - mode: 0640
+    - group: neutron
     - template: jinja
     - require:
       - pkg: neutron_server_packages
@@ -162,6 +170,9 @@ neutron_general_logging_conf:
   file.managed:
     - name: /etc/neutron/logging.conf
     - source: salt://oslo_templates/files/logging/_logging.conf
+    - mode: 0640
+    - user: root
+    - group: neutron
     - template: jinja
     - makedirs: True
     - defaults:
@@ -184,6 +195,9 @@ neutron_general_logging_conf:
   file.managed:
     - name: /etc/neutron/logging/logging-{{ service_name }}.conf
     - source: salt://oslo_templates/files/logging/_logging.conf
+    - mode: 0640
+    - user: root
+    - group: neutron
     - template: jinja
     - makedirs: True
     - defaults:
@@ -230,6 +244,9 @@ neutron_keystone_rule_{{ name }}_absent:
 /etc/default/neutron-server:
   file.managed:
   - source: salt://neutron/files/{{ server.version }}/neutron-server
+  - mode: 0640
+  - user: root
+  - group: neutron
   - template: jinja
   - require:
     - pkg: neutron_server_packages
@@ -290,10 +307,10 @@ remote_ovsdb_access:
   file.managed:
     - source: salt://neutron/files/{{ server.version }}/midonet.ini
     - user: root
-    - group: root
-    - mode: 644
+    - group: neutron
+    - mode: 640
     - makedirs: true
-    - dir_mode: 755
+    - dir_mode: 750
     - template: jinja
     - require_in:
       - sls: neutron.db.offline_sync
@@ -329,10 +346,10 @@ vmware_neutron_packages:
   file.managed:
     - source: salt://neutron/files/{{ server.version }}/plugins/nsx.ini
     - user: root
-    - group: root
-    - mode: 644
+    - group: neutron
+    - mode: 640
     - makedirs: true
-    - dir_mode: 755
+    - dir_mode: 750
     - template: jinja
     - require:
       - pkg: vmware_neutron_packages

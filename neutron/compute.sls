@@ -2,14 +2,32 @@
 
 {%- if compute.enabled %}
 include:
-{% if compute.backend.engine == "ml2" %}
-  {% if compute.dvr %}
-    {%- if fwaas.get('enabled', False) %}
+  {% if compute.backend.engine == "ml2" and compute.dvr and fwaas.get('enabled', False) %}
 - neutron.fwaas
-    {%- endif %}
   {%- endif %}
-{%- endif %}
 - neutron._ssl.rabbitmq
+
+  {%- if not salt['user.info']('neutron') %}
+user_neutron:
+  user.present:
+  - name: neutron
+  - home: /var/lib/neutron
+  - shell: /bin/false
+  - system: True
+  - groups:
+    - neutron
+  - require_in:
+    - sls: neutron._ssl.rabbitmq
+    {% if compute.backend.engine == "ml2" and compute.dvr and fwaas.get('enabled', False) %}
+    - sls: neutron.fwaas
+    {%- endif %}
+group_neutron:
+  group.present:
+    - name: neutron
+    - system: True
+    - require_in:
+      - user: user_neutron
+  {%- endif %}
 
   {% if compute.backend.engine == "ml2" %}
 
@@ -35,6 +53,8 @@ neutron_dhcp_agent:
 /etc/neutron/dhcp_agent.ini:
   file.managed:
   - source: salt://neutron/files/{{ compute.version }}/dhcp_agent.ini
+  - mode: 0640
+  - group: neutron
   - template: jinja
   - require:
     - pkg: neutron_dhcp_agent_packages
