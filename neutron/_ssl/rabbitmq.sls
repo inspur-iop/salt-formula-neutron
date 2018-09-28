@@ -18,7 +18,8 @@ neutron_{{ role }}_ssl_rabbitmq:
   test.show_notification:
     - text: "Running neutron._ssl.rabbitmq"
 
-{%- if neutron_msg is mapping and neutron_msg.get('x509',{}).get('enabled',False) %}
+{%- if neutron_msg is mapping %}
+{%- if neutron_msg.get('x509',{}).get('enabled',False) %}
 
   {%- set ca_file=neutron_msg.x509.ca_file %}
   {%- set key_file=neutron_msg.x509.key_file %}
@@ -75,7 +76,7 @@ rabbitmq_neutron__ssl_x509_set_user_and_group:
     - user: neutron
     - group: neutron
 
-  {% elif neutron_msg.get('ssl',{}).get('enabled',False) %}
+{% elif neutron_msg.get('ssl',{}).get('enabled',False) %}
 rabbitmq_ca_neutron_client:
   {%- if neutron_msg.ssl.cacert is defined %}
   file.managed:
@@ -88,4 +89,5 @@ rabbitmq_ca_neutron_client:
     - name: {{ neutron_msg.ssl.get('cacert_file', neutron_cacert) }}
   {%- endif %}
 
+{%- endif %}
 {%- endif %}
