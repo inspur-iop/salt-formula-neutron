@@ -30,6 +30,13 @@ l2gw_agent__service_mask:
     - pkg: l2gw_agent_packages
 {%- endif %}
 
+# TODO: remove once https://github.com/saltstack/salt/issues/46014 fixed
+l2gw_agent__service_unmask:
+  service.unmasked:
+  - name: neutron-l2gateway-agent
+  - require_in:
+    - service: neutron-l2gateway-agent
+
 neutron-l2gateway-agent:
   service.running:
   - enable: true
