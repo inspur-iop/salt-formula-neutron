@@ -1473,6 +1473,25 @@ Logging levels pillar example:
           eventletwsgi:
             level: 'DEBUG'
     ......
+Neutron server with memcached caching and security strategy:
+
+.. code-block:: yaml
+
+    neutron:
+      server:
+        enabled: true
+        ...
+        cache:
+          engine: memcached
+          members:
+          - host: 127.0.0.1
+            port: 11211
+          - host: 127.0.0.1
+            port: 11211
+          security:
+            enabled: true
+            strategy: ENCRYPT
+            secret_key: secret
 
 Upgrades
 ========
