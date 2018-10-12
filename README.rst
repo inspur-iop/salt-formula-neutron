@@ -869,6 +869,17 @@ Neutron with DHCP agent on compute node
         dhcp_agent_enabled: true
       ....
 
+Neutron with metadata agent on compute node
+-------------------------------------------
+
+.. code-block:: yaml
+
+    neutron:
+      ....
+      compute:
+        metadata_agent_enabled: true
+      ....
+
 Neutron with OVN
 ----------------
 

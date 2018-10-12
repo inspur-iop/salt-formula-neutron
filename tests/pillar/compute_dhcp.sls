@@ -10,6 +10,7 @@ neutron:
           driver: openvswitch
     dvr: false
     dhcp_agent_enabled: true
+    metadata_agent_enabled: true
     enabled: true
     external_access: false
     local_ip: 10.1.0.105

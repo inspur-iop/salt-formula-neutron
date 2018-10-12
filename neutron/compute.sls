@@ -61,6 +61,36 @@ neutron_dhcp_agent:
 
     {% endif %}
 
+    {% if compute.get('metadata_agent_enabled', False) %}
+neutron_metadata_agent_packages:
+  pkg.installed:
+  - names:
+    - neutron-metadata-agent
+  - require_in:
+    - sls: neutron._ssl.rabbitmq
+
+neutron_metadata_agent:
+  service.running:
+    - enable: true
+    - names:
+      - neutron-metadata-agent
+    - watch:
+      - file: /etc/neutron/neutron.conf
+      - file: /etc/neutron/metadata_agent.ini
+    - require:
+      - pkg: neutron_metadata_agent_packages
+
+/etc/neutron/metadata_agent.ini:
+  file.managed:
+  - source: salt://neutron/files/{{ compute.version }}/metadata_agent.ini
+  - mode: 0640
+  - group: neutron
+  - template: jinja
+  - require:
+    - pkg: neutron_metadata_agent_packages
+
+    {% endif %}
+
     {%- if compute.opendaylight is defined %}
       {%- include "neutron/opendaylight/client.sls" %}
     {%- else %}
