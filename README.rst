@@ -29,6 +29,7 @@ Neutron Server on the controller node
         root_helper_daemon: false
         dhcp_lease_duration: 600
         firewall_driver: iptables_hybrid
+        agent_boot_time: 180
         bind:
           address: 172.20.0.1
           port: 9696
