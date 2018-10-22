@@ -9,6 +9,7 @@ neutron:
     api_workers: 2
     rpc_workers: 2
     dhcp_lease_duration: 86400
+    agent_boot_time: 900
     backend:
       engine: contrail
       #contrail_discovery_host
