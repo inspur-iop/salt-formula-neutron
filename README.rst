@@ -58,6 +58,8 @@ Neutron Server on the controller node
         metadata:
           host: 127.0.0.1
           port: 8775
+          insecure: true
+          proto: https
           password: pass
           workers: 2
         audit:
