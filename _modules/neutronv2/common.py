@@ -67,7 +67,7 @@ def send(method):
         @functools.wraps(func)
         def wrapped_f(*args, **kwargs):
             cloud_name = kwargs.pop('cloud_name')
-            connect_retries =  15
+            connect_retries =  30
             connect_retry_delay = 1
             if not cloud_name:
                 e = NoCredentials()
@@ -83,6 +83,7 @@ def send(method):
             if 'microversion' in kwargs:
                 request_kwargs['headers'][
                     NEUTRON_VERSION_HEADER] = kwargs['microversion']
+            response = None
             for i in range(connect_retries):
                 try:
                   response = getattr(adapter, method)(
@@ -98,7 +99,7 @@ def send(method):
                         time.sleep(connect_retry_delay)
                         continue
                 break
-            if not response.content:
+            if not response or not response.content:
                 return {}
             try:
                 resp = response.json()
