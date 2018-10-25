@@ -29,6 +29,23 @@ group_neutron:
       - user: user_neutron
   {%- endif %}
 
+{%- if compute.logging.log_appender %}
+neutron_compute_logging_conf:
+  file.managed:
+    - name: /etc/neutron/logging.conf
+    - source: salt://oslo_templates/files/logging/_logging.conf
+    - mode: 0640
+    - user: root
+    - group: neutron
+    - template: jinja
+    - makedirs: True
+    - defaults:
+        service_name: neutron
+        _data: {{ compute.logging }}
+    - user: neutron
+    - group: neutron
+{%- endif %}
+
   {% if compute.backend.engine == "ml2" %}
 
     {% if compute.get('dhcp_agent_enabled', False) %}
