@@ -23,5 +23,7 @@ neutron:
     metadata:
       host: 127.0.0.1
       password: password
+      insecure: true
+      proto: https
       workers: 2
     version: pike
