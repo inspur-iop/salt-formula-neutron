@@ -917,6 +917,7 @@ Compute node:
         external_access: false
         backend:
           engine: ovn
+          ovn_encap_type: geneve
           ovsdb_connection: tcp:127.0.0.1:6640
         metadata:
           enabled: true

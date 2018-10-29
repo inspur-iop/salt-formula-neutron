@@ -129,7 +129,8 @@ remote_ovsdb_access:
 
 enable_overlays:
   cmd.run:
-  - name: "ovs-vsctl set open . external-ids:ovn-encap-type=geneve,vxlan"
+  - name: "ovs-vsctl set open .
+  external-ids:ovn-encap-type={{ compute.backend.ovn_encap_type }}"
 
 configure_local_endpoint:
   cmd.run:
