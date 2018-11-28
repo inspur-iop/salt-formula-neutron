@@ -6,7 +6,7 @@
     'enabled': false }
 %}
 
-{%- if grains.os_family == "Debian" %}
+{%- if salt['grains.get']('os_family') == 'Debian' %}
 {%- set compute_pkgs_ovn = ['ovn-common', 'ovn-host'] %}
 {%- if pillar.neutron.compute is defined and pillar.neutron.compute.metadata is defined %}
 {%- do compute_pkgs_ovn.extend(['neutron-common', 'python-networking-ovn', 'haproxy']) %}
