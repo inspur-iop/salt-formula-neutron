@@ -124,30 +124,25 @@ ovn_packages:
 
 remote_ovsdb_access:
   cmd.run:
-  - name: "ovs-vsctl set open .
-  external-ids:ovn-remote=tcp:{{ compute.controller_vip }}:6642"
+  - name: "ovs-vsctl set open . external-ids:ovn-remote=tcp:{{ compute.controller_vip }}:6642"
 
 enable_overlays:
   cmd.run:
-  - name: "ovs-vsctl set open .
-  external-ids:ovn-encap-type={{ compute.backend.ovn_encap_type }}"
+  - name: "ovs-vsctl set open . external-ids:ovn-encap-type={{ compute.backend.ovn_encap_type }}"
 
 configure_local_endpoint:
   cmd.run:
-  - name: "ovs-vsctl set open .
-  external-ids:ovn-encap-ip={{ compute.local_ip }}"
+  - name: "ovs-vsctl set open . external-ids:ovn-encap-ip={{ compute.local_ip }}"
 
       {%- if compute.get('external_access', True) %}
 
 set_bridge_external_id:
   cmd.run:
-  - name: "ovs-vsctl --no-wait br-set-external-id
-   {{ compute.external_bridge }} bridge-id {{ compute.external_bridge }}"
+  - name: "ovs-vsctl --no-wait br-set-external-id {{ compute.external_bridge }} bridge-id {{ compute.external_bridge }}"
 
 set_bridge_mapping:
   cmd.run:
-  - name: "ovs-vsctl set open .
-   external-ids:ovn-bridge-mappings=physnet1:{{ compute.external_bridge }}"
+  - name: "ovs-vsctl set open . external-ids:ovn-bridge-mappings=physnet1:{{ compute.external_bridge }}"
 
       {%- endif %}
 
